@@ -53,12 +53,12 @@ More informal version:
 ## Turning Chaos into Shared Creations
 
 ## What We Are, Why We Exist, and Our Vision
-Bordel Hackerspace is a collaborative space for hackers, makers, artists, and anyone who enjoys exploring creativity through technology. After three great years at Paralelni Polis, we're moving to a new, independent space in Prague—a city that shares our values and mission.
+Bordel is a collaborative hackerspace for hackers, makers, artists, and anyone who embraces chaos, creativity or technology. After three great years at Paralelni Polis, we're moving to a new, independent space in Prague — a city that shares our values and mission.
 
-We aim to create an environment where individuals can come together to collaborate, learn, and innovate. Our focus is on supporting free and open-source software while fostering a culture of sharing and cooperation.
+We aim to create an environment where individuals can come together to hack, create, learn, and innovate. Our values are rooted in open source principles, fostering culture of sharing and cooperation.
 
 ## Support Our Mission
-As we transition to our new location, we're seeking financial support from like-minded individuals. By participating in our loan initiative, you can help us build this space while receiving a competitive annual percentage rate (APR). Although the APR might be lower than other investment options, your contribution will directly support the growth of a community-focused hub for creativity and technology.
+As we transition to our new location, we're seeking financial support for the start. Bordel is non-profit collective. By participating in our loan initiative, you can help us build this space while receiving a competitive annual percentage rate (APR). Although the APR might be lower than other investment options, your contribution will directly support the growth of a community-focused hub for creativity and technology.
 
 If you believe in the importance of collaboration and open-source principles, we invite you to lend your support.
 
