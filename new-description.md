@@ -30,6 +30,7 @@ Bordel provides a community space for hackers, makers, artists and everybody who
 - Audio setup with speakers, sub, DJ controller, synths and other kinds of equipment for jams and raves
 - Space for community meetups and workshops, open to public or private events
 - Anything else you'd like! It's a doocracy so anything you bring goes. Let us know in the form below how would you like to use the space
+(TODO should we also mention it's a space for meeting and encountering similar-minded people?)
 
 Physical space should be built highly modular, thus customizable to a lot of settings/activities.
 
