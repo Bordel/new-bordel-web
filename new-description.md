@@ -45,11 +45,15 @@ Activities in the past:
 - Hosting countdown to ETH Merge on bordel.wtf + eth devs merge party
 - Self-defense hacking
 - Synapse music events
-- Micro raves
 - Hackatons - flyingcircuit.com
 - Hosting FOSS software and public goods infrastructure
 - Biology workshop about mycelium
 - What is missing here???
+- Recycled Cartridges Art
+- Security/Privacy workshops, GrapheneOS
+- Playstation hacking workshop
+- NFC Lightning Project
+- Catropy
 
 ???
 - Bleskomat
