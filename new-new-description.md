@@ -14,17 +14,21 @@ Things to sync-on on the call on Saturday:
 ## Transforming Chaos into Shared Creations
 
 ## What We Are, Why We Exist, and Our Vision
-Bordel is a community hackerspace for hackers, makers, artists, and anyone who embraces (peaceful/productive) chaos, creativity or technology. 
 
-Originally opened in Paralelni Polis, after three years of building community, organizing workshops, hackathons, art projects and raves, we are moving to a new independent space in Prague.
+In it's most basic form, you can see Bordel as a community sanctuary for hackers, makers, artists, and anyone who embraces (peaceful/productive) chaos, creativity or technology.
 
-Our vision is to create a space that connects technology and art, space where individuals can come together to create, hack, learn, innovate, meet like-minded individuals and build a community.
+After three years incubating our collective madness at Paralelni Polis, building community, organizing workshops, hackathons, art projects and raves, we are moving to a new independent space in Prague.
 
-Our goal is to create bridges between aligned communities which can meet and collaborate in new ways. We believe there are many people who could work together to create new and amazing things, only if we overcome prejudice and tear down walls. Everyone, on any kind of spectrum, is welcomed in the space and should feel right at home.
+Our vision is to create a space that connects technology and art, an environment where the nonconformist can find their tribe to learn and grow together. Create bridges between aligned communities which can meet and collaborate in new ways. Bordel welcomes the pathologically curious to come together to create, hack, learn, innovate and build community.
 
-Of course we are not limited by physical meetups in the space. With the right equipment, our talks and workshops will be recorded to provide the education to wider public in online space.
+BORDEL is not just a physical space but a provocation where creative expression collides in deliberate chaos. its core wonders happen when people come together in an environment where open-mindedness, curiosity, being aware and discovery unfold in a playful manner. A place where members open up to question every reality, seek more experiences and knowledge, and share their thoughts with each other.
 
-We aim to create an environment where individuals can come together to hack, create, learn, and innovate. Our values are rooted in open source principles, fostering culture of sharing and cooperation.
+We believe there are many people who could work together to create new and amazing things, only if we overcome prejudice and tear down walls. Everyone, on any kind of spectrum, is welcomed in the space and should feel right at home.
+ 
+In a world that demands specialization, we choose integration. In a culture that rewards conformity, we celebrate divergence. In times that push for acceleration, we create space for reflection.
+
+Step beyond the boundaries of what you know. Discover the questions you haven't yet thought to ask. Find your people—not those who mirror your certainties, but those who challenge them with authentic curiosity and genuine care
+Come to us not to escape reality, but to create a new one.
 
 ## Support Our Mission
 As we transition to our new location, we're seeking financial support for the start. Bordel is non-profit collective. By participating in our loan initiative, you can help us build this space while still receiving some annual percentage rate (APR) on your money. Although the APR might be lower than other investment options, your contribution will directly support the growth of a community-focused hub for creativity and technology.
