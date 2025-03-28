@@ -1,0 +1,19 @@
+* {margin: 0; padding: 0}
+body {background: #000; margin: 0 15rem 0 15rem}
+canvas {display: block;}
+h1 {font-size: 7rem; padding-top: 8rem}
+h3 {
+    /*font-size: 7rem; */
+    padding-top: 8rem
+}
+p {padding-top: 1rem; font-size: 22px}
+.padding-top-2 {padding-top: 2rem}
+.text-right {text-align: right}
+.text-center {text-align: center}
+.text-wrap {text-wrap: inherit}
+.margin-left-20 {margin-left: 20rem}
+.margin-left-10 {margin-left: 10rem}
+
+.ul-without-dots {
+    list-style-type: none;
+}
