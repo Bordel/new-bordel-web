@@ -161,3 +161,8 @@ canvas {
         display: inline-block;
     }
 }
+
+/*responsive styles*/
+@media screen and (max-width: 80rem) {
+    .container-body { margin: 0 2rem 0 2rem }
+}
