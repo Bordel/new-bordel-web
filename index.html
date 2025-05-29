@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 
 <head>
+    <link rel="stylesheet" href="styles.css">
+
     <title>Bordel Hackerspace</title>
     <meta name="title" content="Bordel Hackerspace">
     <meta name="description" content="Bordel Hackerspace in Prague" />
@@ -35,19 +37,20 @@
             font-family: Beon
         }
 
+        h4 {
+            font-family: Beon
+        }
+
         h2 {
             font-family: Beon
         }
 
         li {
-            font-family: Beon;
-            list-style-position: inside;
+            font-family: Helvetica;
         }
 
         body {
-            padding: 25px;
-            background-color: black;
-            color: #0f0;
+            background-color: #111111;
             font-size: 25px;
         }
 
@@ -55,6 +58,7 @@
             color: red;
             background-color: transparent;
             text-decoration: none;
+            font-family: Beon;
         }
 
         a:visited {
@@ -63,42 +67,163 @@
             text-decoration: none;
         }
     </style>
+<!--    <script src="script.js"></script>-->
 </head>
 
 <body>
-    <h1>Welcome to BORDEL</h1>
-    <h2>Transforming Chaos into Shared Creations</h2>
+<!--<script src="script.js"></script>-->
 
-    <p>
-        In it's most basic form, you can see Bordel as a community sanctuary for hackers, makers, artists, and anyone who embraces (peaceful/productive) chaos, creativity or technology.
-    </p>
+<header class="d-flex sticky-header">
+    <a href="#home" class="font-color-green">BORDEL</a>
+    <nav class="d-flex flex-gap-1">
+        <a href="#about">ABOUT</a>
+        <a href="#joinUs">JOIN US</a>
+    </nav>
+</header>
 
+<canvas style="position: fixed" id="canvas">Canvas is not supported in your browser.</canvas>
+<canvas style="position: fixed" id="canvas2">Canvas is not supported in your browser.</canvas>
+<div id="home" class="container-body">
+    <h1 class="text-center font-color-green">BORDEL</h1>
+    <h2 class="text-center">Transforming chaos into shared creations</h2>
+
+    <h3 id="about" class="padding-top-8 font-color-green">What We Are, Why We Exist, and Our Vision</h3>
     <p>
+        In it's most basic form, you can see Bordel as a community sanctuary for hackers, makers, artists, and anyone who embraces (peaceful/productive) chaos, creativity or technology. </p>
+        <br><p>
         Our vision is to create a space that connects technology and art, an environment where nonconformists can find their tribe to learn and grow together. Bordel welcomes the pathologically curious to come together to create, hack, learn, innovate and build community.
     </p>
-
+    <br>
     <p>
         BORDEL is not just a physical space but a provocation where creative expression collides in a deliberate chaos. Its core wonders happen when people come together in an environment where open-mindedness, curiosity, being aware and discovery unfold in a playful manner. A place where members open up to question every reality, seek more experiences and knowledge, and share their thoughts with each other.
     </p>
-
+    <br>
     <p>
         In a world that demands specialization, we choose integration. In a culture that rewards conformity, we celebrate divergence. In times that push for acceleration, we create space for reflection.
     </p>
-
+    <br>
     <p>
-        Step beyond the boundaries of what you know. Discover the questions you haven't yet thought to ask. Find your people—not those who mirror your certainties, but those who challenge them with authentic curiosity and genuine care. Come to us not to escape reality, but to create a new one.
+        Step beyond the boundaries of what you know. Discover the questions you haven't yet thought to ask. Find your people&#45;not those who mirror your certainties, but those who challenge them with authentic curiosity and genuine care Come to us not to escape reality, but to create a new one.
     </p>
 
-    <h3>Support Our Mission</h3>
+    <h3 class="text-center padding-top-8 font-color-green">SPACE FOR EVERYONE</h3>
+    <p class="text-center">
+        Bordel Hackerspace is designed to be versatile and welcoming, catering to a variety of activities, including:
+    </p>
+    <ul class="ul-without-dots padding-top-2">
+        <li>
+            <div class="d-flex">
+                <div class="width-50-percent li-div-text">
+                    <h4 class="font-color-green">Co-working Spaces</h4>
+                    <p>
+                        Comfortable areas with stable tables for everyone looking to get things done.
+                    </p>
+                </div>
+
+                <div class="width-50-percent d-flex justify-content-right">
+                    <img class="width-20-rem" src="./assets/images/coworking.png" alt="club-mate" />
+                </div>
+            </div>
+        </li>
+
+        <li class="li-right">
+            <div class="d-flex">
+                <div class="width-50-percent li-div-text text-right">
+                    <h4 class="font-color-green">Makerspace</h4>
+                    <p>Fully equipped with tools for various projects &#45; 3D printers, soldering stations, and more.</p>
+                </div>
+                <div class="d-flex justify-content-left">
+                    <img class="width-20-rem" src="./assets/images/make.png" alt="club-mate" />
+                </div>
+            </div>
+        </li>
+        <li class="text-wrap">
+            <div class="d-flex">
+                <div class="width-50-percent li-div-text">
+                    <h4 class="font-color-green">Community Bar</h4>
+                    <p>Offering Mate, Kombucha, and smoothies &#45; all donations help support the space.</p>
+                </div>
+                <div class="width-50-percent d-flex justify-content-right">
+                    <img class="width-20-rem" src="./assets/images/Screenshot from 2025-03-07 19-59-09 1.png" alt="club-mate" />
+                </div>
+            </div>
+        </li>
+        <li class="li-right">
+            <div class="d-flex">
+                <div class="width-50-percent li-div-text text-right">
+                    <h4 class="font-color-green">Audio Setup</h4>
+                    <p>Featuring speakers, a DJ controller, synths, and equipment for casual jams and events.</p>
+                </div>
+                <div class="d-flex justify-content-left">
+                    <img class="width-20-rem" src="./assets/images/audio.png" alt="club-mate" />
+                </div>
+            </div>
+        </li>
+        <li class="text-wrap">
+            <div class="d-flex">
+                <div class="width-50-percent li-div-text">
+                    <h4 class="font-color-green">Workshops and Meetups</h4>
+                    <p>An open area for community gatherings and workshops, whether public or private.</p>
+                </div>
+                <div class="width-50-percent d-flex justify-content-right">
+                    <img class="width-20-rem" src="./assets/images/workshop.png" alt="club-mate" />
+                </div>
+            </div>
+
+        </li>
+        <li class="text-wrap padding-top-3">
+            <p>We operate on a do-ocracy principle, meaning that everyone&apos;s input is valued. We want to hear your ideas on how you&apos;d like to utilize this space.</p>
+        </li>
+    </ul>
+
+
+    <h3 class="text-center padding-top-8 font-color-green">A GLIMPSE AT OUR ACTIVITIES</h3>
 
     <p>
-        After three years incubating our collective madness at Paralelni Polis, building community, organizing workshops, hackathons, art projects and raves, we are moving to a new independent space in Prague.
+        The original was a small space with relatively small but very community and many visitors. Our members contributed to bunch of cool projects and organized a ton of events for art and education. We...
     </p>
 
-    <p>
-        As we transition to our new location, we're seeking financial support for the start. Bordel is non-profit collective. By participating in our loan initiative, you can help us build this space while still receiving annual percentage rate (APR) on your money. Although the APR might be lower than other investment options, your contribution will directly support the growth of a community-focused hub for creativity and technology.
-    </p>
-
+    <ul class="ul-without-dots padding-top-2">
+        <li>
+            <p> built <a href=https://proofof.cat>Catropy</a>, a cat toy device for extracting secure entropy from felines used to secure cryptography in KZG ceremony</p>
+        </li>
+        <li>
+            <p> created the very first Bitcoin Lightning NFC payments and pioneered the technology</p>
+        </li>
+        <li><p> created an art installation from upcycled hardware and cartridges
+        </li>
+        <li><p> built Bleskomat, first offline Bitcoin Lightning ATM using LNURL and helped to onboard hundreds of people
+        </p>
+        </li>
+        <li><p> hosted FOSS software for the community, providing a privacy respecting alternative to proprietary services
+        </p>
+        </li>
+        <li><p> hosted nodes and tools for various blockchains, including mixers
+        </p>
+        </li>
+        <li><p> organized music events Synapse, hosting local artists and DJs
+        </p></li>
+        <li><p> hosted a coordination for testing Ethereum switch to proof of stake
+        </p></li>
+        <li><p>
+            created an <a href="https://play.workadventu.re/_/global/bordel.github.io/workadvanture-bordel/map.json">online 2D hackerspace</a> to for events during covid and remotely
+        </p>
+        </li>
+        <li><p> organized workshops on 3D printing and creative prototyping
+        </p>
+        </li>
+        <li><p> workshops on biology and sustainability, growing mycelium in the space
+        </p></li>
+        <li><p> workshops on neopixel, art with programmable LED lights
+        </p></li>
+        <li><p> Security/privacy workshops, installing GrapheneOS, GNU/Linux
+        </p></li>
+        <li><p> workshop on hacking Playstation and liberating hardware
+        </p></li>
+        <li><p> organized non-conformist hackatons Hackatoshi's <a href=flyingcircuit.com>Flying Circuit</a>
+        </p></li>
+        <li><p> workshops on hacking self defense tools
+        </p></li>
     <p>
         If you believe in the importance of collaboration and open-source principles, we invite you to lend your support.
     </p>
@@ -119,48 +244,25 @@
         <li>Workshops and Meetups: An open area for community gatherings and workshops, whether public or private.</li>
     </ul>
 
-    <p>
-        We operate on a do-ocracy principle, meaning that everyone's input is valued. We want to hear your ideas on how you'd like to utilize this space.
+    <p class="padding-top-2">
+        And even more! Combining all of the above, Bordel space creates a unique atmosphere for creativity, hacking and relax. We
+        welcome everybody from all kinds of communities to join us and use the space.
     </p>
 
-    <h3>A Glimpse at Our Activities</h3>
+    <h3 id="joinUs" class="text-center padding-top-8 font-color-green">Join us</h3>
+    <p class="text-center">
+        We are operating in private <a href="https://signal.group/#CjQKILd9jG3SmC5jEkCf0VbavrETuLixY7wxITmlkg8dWbdrEhD6qay9BKGWmjYLRFKFZjeB">signal group</a>. More info to come.
     <p>
-        The original was a small space with relatively small but very community and many visitors. Our members contributed to bunch of cool projects and organized a ton of events for art and education. We...
-    </p>
-    <ul>
-        <li>built <a href="https://proofof.cat">Catropy</a>, a cat toy device for extracting secure entropy from felines used to secure cryptography in KZG ceremony</li>
-        <li>created the very first Bitcoin Lightning NFC payments and pioneered the technology</li>
-        <li>created an art installation from upcycled hardware and cartridges</li>
-        <li>built Bleskomat, first offline Bitcoin Lightning ATM using LNURL and helped to onboard hundreds of people</li>
-        <li>hosted FOSS software for the community, providing a privacy respecting alternative to proprietary services</li>
-        <li>hosted nodes and tools for various blockchains, including mixers</li>
-        <li>organized music events Synapse, hosting local artists and DJs</li>
-        <li>hosted a coordination for testing Ethereum switch to proof of stake</li>
-        <li>organized workshops on 3D printing and creative prototyping</li>
-        <li>workshops on biology and sustainability, growing mycelium in the space</li>
-        <li>workshops on neopixel, art with programmable LED lights</li>
-        <li>Security/privacy workshops, installing GrapheneOS, GNU/Linux</li>
-        <li>workshop on hacking Playstation and liberating hardware</li>
-        <li>organized non-conformist hackatons <a href="http://flyingcircuit.com">Hackatoshi's Flying Circuity</a></li>
-        <li>workshops on hacking self defense tools</li>
-        <li>and even more!</li>
-    </ul>
 
-    <p>
-        We're always open to new ideas and activities from realm of art, technology and whatever else comes to your mind!
-    </p>
-
-    <h3>Get Involved!</h3>
-    <p>
-        If you're interested in what we do and want to contribute your skills, ideas, or resources, please reach out using the form below. We welcome everyone to join us in shaping the future of Bordel Hackerspace.
-    </p>
-
-    <p>
-        Let's create something amazing together!
-    </p>
-
-    <h2>Interest Form</h2>
-
-    <a href="https://new.bordel.wtf/"> <img src="./bordel.png" alt="" style="width: 45%; height: auto;"> </a>
-
+    <div class="d-flex" style="justify-content: center">
+      <video controls width="250" class="text-center" style="margin: 2rem 0 2rem 0">
+        <source src="./assets/videos/videBordelCat.mp4" type="video/mp4" />
+        Download the
+        <a href="./assets/videos/videBordelCat.mp4">MP4</a>
+        video.
+      </video>
+    </div>
+<script src="script.js">
+</script>
+</div>
 </body>
