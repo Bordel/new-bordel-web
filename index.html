@@ -1,6 +1,9 @@
 <!DOCTYPE html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="styles.css">
 
     <title>Bordel Hackerspace</title>
@@ -12,13 +15,13 @@
     <meta property="og:url" content="https://new.bordel.wtf">
     <meta property="og:title" content="Bordel Hackerspace">
     <meta property="og:description" content="Bordel Hackerspace">
-    <meta property="og:image" content="https://new.bordel.wtf/bordel.png">
+    <meta property="og:image" content="https://new.bordel.wtf/assets/images/bordel.png">
 
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://new.bordel.wtf/">
     <meta property="twitter:title" content="Bordel ">
     <meta property="twitter:description" content="Bordel Hackerspace in Prague">
-    <meta property="twitter:image" content="https://https://new.bordel.wtf/bordel.png">
+    <meta property="twitter:image" content="https://new.bordel.wtf/assets/images/bordel.png">
     <style>
         @font-face {
             font-family: Beon;
@@ -84,9 +87,13 @@
     <canvas style="position: fixed" id="canvas2">Canvas is not supported in your browser.</canvas>
     <div id="home" class="container-body">
         <h1 class="text-center font-color-green">BORDEL</h1>
-        <h2 class="text-center">Transforming chaos into shared creations</h2>
+        <h2 class="text-center">Transforming <a href="https://hermetic.com/bey/taz1">chaos</a> into shared creations</h2>
+        <div class="text-center button-row">
+            <a href="https://paragraph.com/@bordel/decentralized-crowdloaning" class="button">Announcement Blog</a>
+            <a href="https://loan.bordel.wtf/" class="button">Crowdloan and Support Us</a>
+        </div>
 
-        <h3 id="about" class="padding-top-8 font-color-green">What We Are, Why We Exist, and Our Vision</h3>
+        <h3 id="about" class="padding-top-8 font-color-green">What is Bordel, Who are we, and Our Vision</h3>
         <p>
             In it's most basic form, you can see Bordel as a community sanctuary for hackers, makers, artists, and
             anyone who embraces (peaceful/productive) chaos, creativity or technology. </p>
@@ -199,14 +206,14 @@
 
         <ul class="ul-without-dots padding-top-2">
             <li>
-                <p> built <a href=https://proofof.cat>Catropy</a>, a cat toy device for extracting secure entropy from
+                <p> built <a href="https://proofof.cat">Catropy</a>, a cat toy device for extracting secure entropy from
                     felines used to secure cryptography in KZG ceremony</p>
             </li>
             <li>
                 <p> created the very first Bitcoin Lightning NFC payments and pioneered the technology</p>
             </li>
             <li>
-                <p> created an art installation from upcycled hardware and cartridges
+                <p> created an art installation from upcycled hardware and cartridges</p>
             </li>
             <li>
                 <p> built Bleskomat, first offline Bitcoin Lightning ATM using LNURL and helped to onboard hundreds of
@@ -258,36 +265,37 @@
                 </p>
             </li>
             <li>
-                <p> organized non-conformist hackatons Hackatoshi's <a href=flyingcircuit.com>Flying Circuit</a>
+                <p> organized non-conformist hackatons Hackatoshi's <a href="https://flyingcircuit.com">Flying Circuit</a>
                 </p>
             </li>
             <li>
                 <p> workshops on hacking self defense tools
                 </p>
             </li>
+        </ul>
 
-            <p class="padding-top-2">
-                And even more! Combining all of the above, Bordel space creates a unique atmosphere for creativity,
-                hacking and relax. We
-                welcome everybody from all kinds of communities to join us and use the space.
-            </p>
+        <p class="padding-top-2">
+            And even more! Combining all of the above, Bordel space creates a unique atmosphere for creativity,
+            hacking and relax. We
+            welcome everybody from all kinds of communities to join us and use the space.
+        </p>
 
-            <h3 id="joinUs" class="text-center padding-top-8 font-color-green">Join us</h3>
-            <p class="text-center">
-                We are operating in private <a
-                    href="https://signal.group/#CjQKILd9jG3SmC5jEkCf0VbavrETuLixY7wxITmlkg8dWbdrEhD6qay9BKGWmjYLRFKFZjeB">signal
-                    group</a>. More info to come.
-            <p>
+        <h3 id="joinUs" class="text-center padding-top-8 font-color-green">Join us</h3>
+        <p class="text-center">
+            We are operating in private <a
+                href="https://signal.group/#CjQKILd9jG3SmC5jEkCf0VbavrETuLixY7wxITmlkg8dWbdrEhD6qay9BKGWmjYLRFKFZjeB">signal
+                group</a>. You can also reach us at <a href="mailto:info@bordel.wtf">info@bordel.wtf</a>
+        </p>
 
-            <div class="d-flex" style="justify-content: center">
-                <video controls width="250" class="text-center" style="margin: 2rem 0 2rem 0">
-                    <source src="./assets/videos/videBordelCat.mp4" type="video/mp4" />
-                    Download the
-                    <a href="./assets/videos/videBordelCat.mp4">MP4</a>
-                    video.
-                </video>
-            </div>
-            <script src="script.js">
-            </script>
+        <div class="d-flex" style="justify-content: center">
+            <video controls width="250" class="text-center" style="margin: 2rem 0 2rem 0">
+                <source src="./assets/videos/videBordelCat.mp4" type="video/mp4" />
+                Download the
+                <a href="./assets/videos/videBordelCat.mp4">MP4</a>
+                video.
+            </video>
+        </div>
     </div>
+    <script src="script.js"></script>
 </body>
+</html>

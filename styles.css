@@ -66,8 +66,26 @@ p {
 .text-right {text-align: right}
 .text-right {text-align: right}
 .text-right {text-align: right}
-.li-right {direction: rtl;
-    /*text-align: right*/
+.li-right > .d-flex {
+    flex-direction: row-reverse;
+}
+
+.button-row {
+    margin: 20px 0;
+}
+
+/* a.button:link/visited needed to beat the global red a:link rule */
+a.button,
+a.button:link,
+a.button:visited {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 0 10px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
 }
 .text-right {text-align: right}
 .text-center {text-align: center}
@@ -84,6 +102,7 @@ li::marker {
 
 .width-20-rem {
     width: 30rem;
+    max-width: 100%;
 }
 
 .width-5-rem {
@@ -165,4 +184,24 @@ canvas {
 /*responsive styles*/
 @media screen and (max-width: 80rem) {
     .container-body { margin: 0 2rem 0 2rem }
+}
+
+/* phones and small tablets: stack image + text rows vertically */
+@media screen and (max-width: 48rem) {
+    .container-body { margin: 0 1rem 0 1rem }
+    header { margin: 1rem; }
+    h1 { font-size: 48px; padding-top: 4rem; }
+    h2 { font-size: 22px; }
+    .padding-top-8 { padding-top: 4rem; }
+    a.button { margin: 0.5rem; }
+
+    li > .d-flex,
+    .li-right > .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    li .width-50-percent { width: 100%; }
+    li .text-right { text-align: left; }
+    li .justify-content-right,
+    li .justify-content-left { justify-content: center; }
 }
