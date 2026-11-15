@@ -66,9 +66,201 @@ p {
 .text-right {text-align: right}
 .text-right {text-align: right}
 .text-right {text-align: right}
-.li-right > .d-flex {
-    flex-direction: row-reverse;
+/* ---------- space for everyone ---------- */
+.features {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    padding-top: 3rem;
 }
+
+.feature {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    align-items: center;
+    gap: 2.5rem;
+}
+.feature-reverse { grid-template-columns: 2fr 3fr; }
+.feature-reverse .feature-media { order: 2; }
+
+.feature-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 0, 0.35);
+    box-shadow: 0 0 24px rgba(0, 255, 0, 0.12);
+    transition: box-shadow 0.4s, border-color 0.4s;
+}
+.feature-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+/* neon corner brackets */
+.feature-media::before,
+.feature-media::after {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    z-index: 1;
+    pointer-events: none;
+}
+.feature-media::before {
+    top: 10px;
+    left: 10px;
+    border-top: 2px solid #0f0;
+    border-left: 2px solid #0f0;
+}
+.feature-media::after {
+    bottom: 10px;
+    right: 10px;
+    border-bottom: 2px solid #0f0;
+    border-right: 2px solid #0f0;
+}
+.feature:hover .feature-media {
+    border-color: #0f0;
+    box-shadow: 0 0 32px rgba(0, 255, 0, 0.3);
+}
+.feature:hover .feature-media img { transform: scale(1.05); }
+
+.feature-text {
+    padding: 1.5rem 1.75rem;
+    background-color: rgba(17, 17, 17, 0.85);
+    border-left: 2px solid #0f0;
+}
+.feature-reverse .feature-text {
+    border-left: none;
+    border-right: 2px solid #0f0;
+    text-align: right;
+}
+.feature-num {
+    font-family: Beon;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: #0f0;
+    opacity: 0.55;
+}
+.feature-text h4 {
+    margin: 0.3rem 0 0.7rem;
+    font-size: 1.6rem;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.45);
+}
+.feature-text p {
+    line-height: 1.6;
+    color: #ddd;
+}
+
+.callout {
+    margin-top: 4rem;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    line-height: 1.6;
+    border: 1px dashed #0f0;
+    background-color: rgba(0, 40, 0, 0.75);
+}
+
+/* ---------- activities slider ---------- */
+.slider {
+    position: relative;
+}
+
+.slider-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;          /* Firefox */
+    cursor: grab;
+}
+.slider-track::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
+.slider-track.animating {
+    scroll-snap-type: none;
+}
+.slider-track.dragging {
+    scroll-snap-type: none;
+    cursor: grabbing;
+    user-select: none;
+}
+
+.slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    box-sizing: border-box;
+    padding: 0 3.5rem;              /* room for the arrows */
+}
+
+.slide-photo {
+    aspect-ratio: 16 / 9;
+    max-height: 60vh;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(17, 17, 17, 0.85);
+    border: 2px dashed #00a400;
+    color: #00a400;
+    font-family: Beon;
+    overflow: hidden;
+}
+.slide-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;           /* don't let the browser drag the image */
+}
+
+.slide p {
+    text-align: center;
+    padding: 1rem 0;
+    background-color: rgba(17, 17, 17, 0.85);
+}
+
+/* neon glowing < > arrows */
+.slider-arrow {
+    position: absolute;
+    top: 50%;            /* vertical middle of the slider */
+    transform: translateY(-50%);
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #0f0;
+    font-family: Beon;
+    font-size: 2.2rem;
+    line-height: 1;
+    text-shadow: 0 0 6px #0f0, 0 0 14px #0f0;
+    cursor: pointer;
+    transition: text-shadow 0.15s;
+}
+.slider-arrow:hover,
+.slider-arrow:focus-visible {
+    text-shadow: 0 0 8px #0f0, 0 0 22px #0f0, 0 0 36px #0f0;
+    outline: none;
+}
+.slider-prev { left: 0; }
+.slider-next { right: 0; }
+
+.slider-dots {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+}
+.slider-dots button {
+    width: 0.75rem;
+    height: 0.75rem;
+    padding: 0;
+    border: 1px solid #0f0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+.slider-dots button[aria-current="true"] { background: #0f0; }
 
 .button-row {
     margin: 20px 0;
@@ -195,13 +387,19 @@ canvas {
     .padding-top-8 { padding-top: 4rem; }
     a.button { margin: 0.5rem; }
 
-    li > .d-flex,
-    .li-right > .d-flex {
-        flex-direction: column;
-        gap: 1rem;
+    /* space for everyone: stack photo above text */
+    .features { gap: 2.5rem; }
+    .feature,
+    .feature-reverse { grid-template-columns: 1fr; gap: 0; }
+    .feature-reverse .feature-media { order: 0; }
+    .feature-reverse .feature-text {
+        border-right: none;
+        border-left: 2px solid #0f0;
+        text-align: left;
     }
-    li .width-50-percent { width: 100%; }
-    li .text-right { text-align: left; }
-    li .justify-content-right,
-    li .justify-content-left { justify-content: center; }
+    .callout { margin-top: 2.5rem; padding: 1.25rem; }
+
+    /* swipe instead of arrows on phones; give the photo full width */
+    .slide { padding: 0; }
+    .slider-arrow { display: none; }
 }
