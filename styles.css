@@ -1,4 +1,11 @@
 * {margin: 0; padding: 0}
+/* mouse pointer = the red Bordel logo (syringe); the click point is the needle tip.
+   Links/buttons get a hover variant; the normal cursors are the fallback. */
+html { cursor: url('assets/cursors/logo-cursor.png') 2 2, auto; }
+.slider-track { cursor: url('assets/cursors/logo-cursor.png') 2 2, grab; }
+/* over anything clickable: the hover version of the syringe */
+a, button { cursor: url('assets/cursors/logo-cursor-hover.png') 2 2, pointer; }
+
 /* menu jumps (#about, #joinUs, #contact): stop below the sticky header, not under it */
 [id] { scroll-margin-top: 4.5rem; }
 body {
@@ -180,7 +187,6 @@ p {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;          /* Firefox */
-    cursor: grab;
 }
 .slider-track::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
 .slider-track.animating {
@@ -290,7 +296,6 @@ p {
     font-size: 2.2rem;
     line-height: 1;
     text-shadow: 0 0 6px #0f0, 0 0 14px #0f0;
-    cursor: pointer;
     transition: text-shadow 0.15s;
 }
 .slider-arrow:hover,
@@ -315,7 +320,6 @@ p {
     border: 1px solid #0f0;
     border-radius: 50%;
     background: transparent;
-    cursor: pointer;
 }
 .slider-dots button[aria-current="true"] { background: #0f0; }
 
