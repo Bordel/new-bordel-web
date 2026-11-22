@@ -151,7 +151,7 @@ Program terminated with signal SIGSEGV, Segmentation fault.
   // missing page like /oldpage/ on a user site never becomes the "root".
   if (/\.github\.io$/.test(location.hostname)) {
     const first = location.pathname.split('/')[1];
-    if (first && !first.includes('.')) {
+    if (first) {                       // the probe below decides; '/404.html/404.html' simply fails
       fetch('/' + first + '/404.html', { method: 'HEAD' })
         .then((r) => {
           if (!r.ok) return;

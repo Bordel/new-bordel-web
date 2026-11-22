@@ -83,7 +83,12 @@
   (window.EVENTS || []).forEach((src) => {
     const start = parseStart(src.start);
     if (!start) { console.warn('[bbs] Bad start date, skipped:', src); return; }
-    const dur = (src.durationMin || CONFIG.defaultDurationMin) * 60000;
+    let mins = src.durationMin == null ? CONFIG.defaultDurationMin : src.durationMin;
+    if (typeof mins !== 'number' || !Number.isFinite(mins) || mins <= 0) {
+      console.warn('[bbs] Bad durationMin (must be a number of minutes), using the default:', src);
+      mins = CONFIG.defaultDurationMin;
+    }
+    const dur = mins * 60000;
     const add = (s, uid) => all.push(Object.assign({}, src, { id: uid, start: s, end: new Date(s.getTime() + dur) }));
 
     if (src.repeat === 'weekly') {
@@ -224,14 +229,16 @@
 
   /* Description text with optional links: ev.links = { 'phrase in the text': 'https://...' }.
      Each phrase becomes a link (new tab); only http(s) URLs are used, text stays textContent. */
+  // valid links of an event: non-empty phrase -> http(s) URL string (shared by page and .ics)
+  const linkEntries = (links) => (links && typeof links === 'object')
+    ? Object.entries(links).filter(([t, u]) => typeof t === 'string' && t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
   function withLinks(parent, text, links) {
-    const map = links && typeof links === 'object'
-      ? Object.entries(links).filter(([t, u]) => t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
+    const map = linkEntries(links);
     parent.replaceChildren();
     let rest = String(text || '');
     while (rest) {
       let best = null;
-      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i)) best = { i, t, u }; }
+      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i || (i === best.i && t.length > best.t.length))) best = { i, t, u }; }
       if (!best) { parent.append(rest); break; }
       if (best.i) parent.append(rest.slice(0, best.i));
       const a = document.createElement('a');
@@ -242,8 +249,7 @@
     return parent;
   }
   // links also go into the .ics description, as "phrase: url" lines
-  const linkLines = (ev) => (ev.links && typeof ev.links === 'object')
-    ? Object.entries(ev.links).filter(([, u]) => /^https?:\/\//i.test(u)).map(([t, u]) => t + ': ' + u) : [];
+  const linkLines = (ev) => linkEntries(ev.links).map(([t, u]) => t + ': ' + u);
 
   /* ===== 6. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); // 20261121T180000Z

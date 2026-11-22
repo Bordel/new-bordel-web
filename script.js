@@ -95,8 +95,8 @@ update();
     const header = document.querySelector('header');
     if (!header) return;
     const update = () => {
-        const top = parseFloat(getComputedStyle(header).marginTop) || 0;
-        document.documentElement.style.setProperty('--header-h', Math.ceil(header.offsetHeight + top) + 'px');
+        // stuck at top:0 its margin takes no space, so only the box height counts
+        document.documentElement.style.setProperty('--header-h', Math.ceil(header.offsetHeight) + 'px');
     };
     update();
     if ('ResizeObserver' in window) new ResizeObserver(update).observe(header);

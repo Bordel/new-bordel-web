@@ -90,7 +90,12 @@
   (window.EVENTS || []).forEach((src) => {
     const start = parseStart(src.start);
     if (!start) { console.warn('[calendar] Bad start date, skipped:', src); return; }
-    const dur = (src.durationMin || CONFIG.defaultDurationMin) * 60000;
+    let mins = src.durationMin == null ? CONFIG.defaultDurationMin : src.durationMin;
+    if (typeof mins !== 'number' || !Number.isFinite(mins) || mins <= 0) {
+      console.warn('[calendar] Bad durationMin (must be a number of minutes), using the default:', src);
+      mins = CONFIG.defaultDurationMin;
+    }
+    const dur = mins * 60000;
     const add = (s, uid) => occurrences.push(Object.assign({}, src, {
       uid, start: s, end: new Date(s.getTime() + dur), dayKey: keyOf(s), type: typeKey(src.type)
     }));
@@ -210,7 +215,7 @@
     events.forEach((ev) => {
       const art = node('article', 'ev');
       art.append(node('p', 'ev__time', ev.endKey !== ev.dayKey
-        ? shortDay(ev.dayKey) + ' ' + fmtTime.format(ev.start) + ' – ' + shortDay(ev.endKey) + ' ' + fmtTime.format(ev.end)
+        ? shortDay(ev.dayKey) + ' ' + fmtTime.format(ev.start) + ' – ' + shortDay(keyOf(ev.end)) + ' ' + fmtTime.format(ev.end)
         : fmtTime.format(ev.start) + '-' + fmtTime.format(ev.end)));
       art.append(node('h3', 'ev__title', up(ev.title)));
       const meta = node('p', 'ev__where');
@@ -275,8 +280,9 @@
     let k = makeKey(y, m, 1);
     if (y === ty && m === tm) k = todayKey;
     else {
-      const firstEvent = occurrences.find((o) => o.dayKey.startsWith(k.slice(0, 8)));
-      if (firstEvent) k = firstEvent.dayKey;
+      const monthEnd = makeKey(y, m, new Date(Date.UTC(y, m, 0)).getUTCDate());       // last day of the month
+      const first = occurrences.find((o) => o.dayKey <= monthEnd && o.endKey >= k);   // overlaps this month
+      if (first) k = first.dayKey > k ? first.dayKey : k;                             // still running on the 1st -> the 1st
     }
     selectDay(k, focus);
   }
@@ -290,14 +296,16 @@
 
   /* Description text with optional links: ev.links = { 'phrase in the text': 'https://...' }.
      Each phrase becomes a link (new tab); only http(s) URLs are used, text stays textContent. */
+  // valid links of an event: non-empty phrase -> http(s) URL string (shared by page and .ics)
+  const linkEntries = (links) => (links && typeof links === 'object')
+    ? Object.entries(links).filter(([t, u]) => typeof t === 'string' && t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
   function withLinks(parent, text, links) {
-    const map = links && typeof links === 'object'
-      ? Object.entries(links).filter(([t, u]) => t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
+    const map = linkEntries(links);
     parent.replaceChildren();
     let rest = String(text || '');
     while (rest) {
       let best = null;
-      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i)) best = { i, t, u }; }
+      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i || (i === best.i && t.length > best.t.length))) best = { i, t, u }; }
       if (!best) { parent.append(rest); break; }
       if (best.i) parent.append(rest.slice(0, best.i));
       const a = document.createElement('a');
@@ -308,8 +316,7 @@
     return parent;
   }
   // links also go into the .ics description, as "phrase: url" lines
-  const linkLines = (ev) => (ev.links && typeof ev.links === 'object')
-    ? Object.entries(ev.links).filter(([, u]) => /^https?:\/\//i.test(u)).map(([t, u]) => t + ': ' + u) : [];
+  const linkLines = (ev) => linkEntries(ev.links).map(([t, u]) => t + ': ' + u);
 
   /* ===== 8. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
