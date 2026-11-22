@@ -238,6 +238,15 @@ p {
     text-shadow: 0 0 6px rgba(0, 255, 0, 0.6), 0 0 18px rgba(0, 255, 0, 0.35);
 }
 
+/* three portrait (3:4) photos side by side */
+.slide-photo--trio {
+    aspect-ratio: 9 / 4;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+.slide-photo--trio img { min-width: 0; min-height: 0; }
+
 /* several photos in one slide: big one on the left, two stacked on the right.
    Column/row sizes follow the photos' own shapes, so they are barely cropped. */
 .slide-photo--collage {
