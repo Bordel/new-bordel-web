@@ -1,4 +1,6 @@
 * {margin: 0; padding: 0}
+/* menu jumps (#about, #joinUs, #contact): stop below the sticky header, not under it */
+[id] { scroll-margin-top: 4.5rem; }
 body {
     background-color: #111111;
     color: white;
@@ -71,9 +73,6 @@ p {
 .padding-left-7-5 {padding-left: 7.5rem}
 .padding-left-8 {padding-left: 8rem}
 
-.text-right {text-align: right}
-.text-right {text-align: right}
-.text-right {text-align: right}
 /* ---------- space for everyone ---------- */
 .features {
     display: flex;
@@ -91,14 +90,14 @@ p {
 .feature-reverse { grid-template-columns: 5fr 4fr; }
 .feature-reverse .feature-media { order: 2; }
 
+/* cards: sharp corners, thin outline on black, monospace label, heading with a
+   terminal cursor. The outline lights up when the row is hovered. */
 .feature-media {
     position: relative;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    border-radius: 4px;
     border: 1px solid rgba(0, 255, 0, 0.35);
-    box-shadow: 0 0 24px rgba(0, 255, 0, 0.12);
-    transition: box-shadow 0.4s, border-color 0.4s;
+    transition: border-color 0.3s;
 }
 .feature-media img {
     display: block;
@@ -107,38 +106,59 @@ p {
     object-fit: cover;
     transition: transform 0.8s ease;
 }
-/* neon corner brackets */
-.feature:hover .feature-media {
-    border-color: #0f0;
-    box-shadow: 0 0 32px rgba(0, 255, 0, 0.3);
+
+/* Art row: wide graffiti tag on top, four pictures below
+   (hacker 1:1 | lines 1.44:1 | banner 0.96:1 | logo, shown whole).
+   Columns follow the pictures' own shapes, so they are barely cropped. */
+.feature-media--art {
+    aspect-ratio: 2 / 1;
+    display: grid;
+    grid-template-columns: 1fr 1.44fr 0.96fr 0.6fr;
+    grid-template-rows: 24fr 25fr;
+    gap: 4px;
+    background-color: #000;
 }
-.feature:hover .feature-media img { transform: scale(1.05); }
+.feature-media--art img { min-width: 0; min-height: 0; }
+.feature-media--art .art-wide { grid-column: 1 / -1; }
+.feature-media--art .art-logo { object-fit: contain; padding: 0.6rem; box-sizing: border-box; }
+.feature:hover .feature-media { border-color: #0f0; }
+.feature:hover .feature-media img { transform: scale(1.04); }
 
 .feature-text {
-    padding: 1.5rem 1.75rem;
-    background-color: rgba(17, 17, 17, 0.85);
-    border-left: 2px solid #0f0;
+    padding: 1.6rem 1.9rem 1.7rem;
+    background-color: rgba(0, 0, 0, 0.88);
+    border: 1px solid rgba(0, 255, 0, 0.35);
+    transition: border-color 0.3s;
 }
-.feature-reverse .feature-text {
-    border-left: none;
-    border-right: 2px solid #0f0;
-    text-align: right;
-}
+.feature:hover .feature-text { border-color: #0f0; }
+
+/* small label above the heading, e.g. "01 · DESKS" */
 .feature-num {
-    font-family: Beon;
-    font-size: 16px;
-    letter-spacing: 0.2em;
+    display: block;
+    font: 600 0.8rem/1 ui-monospace, 'DejaVu Sans Mono', 'Courier New', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     color: #0f0;
-    opacity: 0.55;
+    opacity: 0.75;
 }
 .feature-text h4 {
-    margin: 0.3rem 0 0.7rem;
+    margin: 0.75rem 0 0.6rem;
     font-size: 1.6rem;
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.45);
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.35);
+}
+.feature-text h4::after {        /* terminal cursor; blinks while the row is hovered */
+    content: '_';
+    margin-left: 0.1em;
+}
+.feature:hover .feature-text h4::after { animation: cursor-blink 1s steps(1) infinite; }
+@keyframes cursor-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .feature:hover .feature-text h4::after { animation: none; }
 }
 .feature-text p {
-    line-height: 1.6;
-    color: #ddd;
+    margin: 0;
+    line-height: 1.65;
+    color: #d6d6d6;
 }
 
 .callout {
@@ -146,8 +166,8 @@ p {
     padding: 1.5rem 2rem;
     text-align: center;
     line-height: 1.6;
-    border: 1px dashed #0f0;
-    background-color: rgba(0, 40, 0, 0.75);
+    border: 1px solid rgba(0, 255, 0, 0.35);
+    background-color: rgba(0, 0, 0, 0.88);
 }
 
 /* ---------- activities slider ---------- */
@@ -385,10 +405,20 @@ li::marker {
 header {
     top: 0;
     position: sticky;
+    z-index: 100;                    /* stay above photos/slider while they scroll under it */
     display: flex;
     background-color: #111111;
     justify-content: space-between;
     margin: 1rem 2rem 1rem 2rem;
+}
+
+/* "|" between the menu items (ABOUT | EVENTS | JOIN US | CONTACT) */
+header nav a + a::before {
+    content: '|';
+    display: inline-block;           /* keeps the link underline/hover off the pipe */
+    margin-right: 1rem;              /* same as the gap on the other side */
+    color: rgba(0, 255, 0, 0.45);
+    pointer-events: none;
 }
 
 canvas {
@@ -419,13 +449,27 @@ canvas {
 @media screen and (max-width: 48rem) {
     .container-body { margin: 0 1rem 0 1rem }
     header {
-        margin: 0.5rem;
-        padding: 0.25rem 0.5rem;
+        margin: 0.5rem 0.4rem;
+        padding: 0.25rem 0.4rem;
         align-items: center;
         gap: 0.75rem;                     /* keep BORDEL and the menu apart */
-        font-size: clamp(15px, 4.6vw, 22px);   /* 4 links must fit a 360px screen */
+        font-size: clamp(12px, 3.7vw, 22px);   /* logo + 4 links must fit a 320px screen */
     }
-    header nav { gap: 0.75rem; }
+    header nav { gap: 0.3rem; }
+    header nav a + a::before { margin-right: 0.5rem; }   /* the "|" glyph leans right; even it out */
+}
+
+/* narrow phones: BORDEL on the first line, the menu centred on the second,
+   so the items keep a readable size together with the "|" separators */
+@media screen and (max-width: 30rem) {
+    header {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 0.15rem;
+        font-size: clamp(13px, 4.3vw, 18px);
+    }
+    header nav { gap: 0.25rem; }
+    header nav a + a::before { margin-right: 0.45rem; }
     header a { white-space: nowrap; }      /* never break "JOIN US" onto two lines */
     h1 { font-size: 48px; padding-top: 4rem; }
     h2 { font-size: 22px; }
@@ -445,11 +489,7 @@ canvas {
     .feature,
     .feature-reverse { grid-template-columns: 1fr; gap: 0; }
     .feature-reverse .feature-media { order: 0; }
-    .feature-reverse .feature-text {
-        border-right: none;
-        border-left: 2px solid #0f0;
-        text-align: left;
-    }
+    .feature-text { border-top: none; }   /* card sits directly under its photo */
     .callout { margin-top: 2.5rem; padding: 1.25rem; }
 
     /* swipe instead of arrows on phones; give the photo full width */
