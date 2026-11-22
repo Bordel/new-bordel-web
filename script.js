@@ -201,18 +201,50 @@ update();
     slider.querySelector('.slider-prev').addEventListener('click', () => { scrollToPos(pos - 1); restart(); });
     slider.querySelector('.slider-next').addEventListener('click', () => { scrollToPos(pos + 1); restart(); });
 
-    // autoplay: keeps advancing every few seconds, also while hovered or focused.
+    // autoplay: keeps advancing every few seconds, also while the mouse hovers it.
+    // It stops only while keyboard focus is inside the slider, so a focused link
+    // is never scrolled out of view.
     // Any manual move (arrow, dot, key, swipe, drag) calls restart(), so the next
     // automatic step waits a full interval instead of jumping right after it.
+    let focusPaused = false,             // keyboard focus inside the slider
+        inView = !('IntersectionObserver' in window),   // slider well visible on screen (see below)
+        touching = false;                // a finger is on the slider
+
     function restart() {
         clearInterval(timer);
-        if (reducedMotion || document.hidden) return;   // nobody watching / user asked for less motion
+        if (reducedMotion || document.hidden || focusPaused || !inView) return;   // only animate while it can be seen
         timer = setInterval(() => {
-            if (!track.classList.contains('dragging')) scrollToPos(pos + 1);   // never yank a slide mid-drag
+            // never move a slide while the visitor is holding/dragging it
+            if (!touching && !track.classList.contains('dragging')) scrollToPos(pos + 1);
         }, AUTOPLAY_MS);
     }
-    track.addEventListener('touchstart', restart, { passive: true });
+
+    // keyboard focus only (:focus-visible); a mouse click on an arrow/dot also
+    // focuses that button, but must not stop the autoplay
+    slider.addEventListener('focusin', (e) => {
+        if (e.target.matches(':focus-visible')) { focusPaused = true; restart(); }
+    });
+    slider.addEventListener('focusout', (e) => {
+        if (!slider.contains(e.relatedTarget)) { focusPaused = false; restart(); }
+    });
+    track.addEventListener('touchstart', () => { touching = true; restart(); }, { passive: true });
+    const touchEnd = () => { touching = false; restart(); };
+    track.addEventListener('touchend', touchEnd, { passive: true });
+    track.addEventListener('touchcancel', touchEnd, { passive: true });
     document.addEventListener('visibilitychange', restart);
+
+    // "well visible" = at least half of the slider, or half of the screen height when the
+    // slider is taller than that (short landscape phones), is on screen. Autoplay only runs
+    // then, so the slider doesn't keep turning while it's scrolled out of view; the arrow
+    // keys use the same check.
+    if ('IntersectionObserver' in window) {
+        const steps = Array.from({ length: 21 }, (_, i) => i / 20);
+        new IntersectionObserver(([entry]) => {
+            const needed = Math.min(entry.boundingClientRect.height, window.innerHeight) * 0.5;
+            const visible = entry.isIntersecting && entry.intersectionRect.height >= needed;
+            if (visible !== inView) { inView = visible; restart(); }
+        }, { threshold: steps }).observe(slider);
+    }
 
     // mouse drag on desktop (touch swipe already works natively)
     let dragStartX = 0, dragStartPos = 1, dragged = false;
@@ -249,17 +281,20 @@ update();
         if (dragged) { e.preventDefault(); dragged = false; }
     }, true);
 
-    // keyboard ← / → change slides while the slider is mostly on screen (or focused)
-    let inView = false;
-    if ('IntersectionObserver' in window) {
-        new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; }, { threshold: 0.5 }).observe(slider);
-    }
+    // keyboard ← / → change slides when focus is inside the slider, or when nothing
+    // else has focus and the slider is well visible. Any other focused control
+    // (link, button, media player, tabs, text field, ...) keeps its own arrow keys.
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
         if (e.repeat || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-        const t = e.target;
-        if (t.isContentEditable || (t.closest && t.closest('input, textarea, select'))) return;  // typing
-        if (!inView && !slider.contains(document.activeElement)) return;
+        const active = document.activeElement;
+        const nothingFocused = !active || active === document.body || active === document.documentElement;
+        if (slider.contains(active)) {
+            // inside the slider: fine, except not for a focused text field (none today, but be safe)
+            if (active.isContentEditable || active.matches('input, textarea, select')) return;
+        } else if (!(nothingFocused && inView)) {
+            return;
+        }
         e.preventDefault();
         scrollToPos(pos + (e.key === 'ArrowRight' ? 1 : -1));
         restart();

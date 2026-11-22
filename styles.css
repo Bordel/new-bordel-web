@@ -108,27 +108,6 @@ p {
     transition: transform 0.8s ease;
 }
 /* neon corner brackets */
-.feature-media::before,
-.feature-media::after {
-    content: "";
-    position: absolute;
-    width: 22px;
-    height: 22px;
-    z-index: 1;
-    pointer-events: none;
-}
-.feature-media::before {
-    top: 10px;
-    left: 10px;
-    border-top: 2px solid #0f0;
-    border-left: 2px solid #0f0;
-}
-.feature-media::after {
-    bottom: 10px;
-    right: 10px;
-    border-bottom: 2px solid #0f0;
-    border-right: 2px solid #0f0;
-}
 .feature:hover .feature-media {
     border-color: #0f0;
     box-shadow: 0 0 32px rgba(0, 255, 0, 0.3);
@@ -265,7 +244,7 @@ p {
     padding: 1rem 0;
     background-color: rgba(17, 17, 17, 0.85);
 }
-/* caption under the photo (direct child only, not the text inside the [REDACTED] placeholder) */
+/* caption under the photo (direct child only, so the big text in .slide-photo--text slides keeps its own style) */
 .slide > p {
     max-width: 45rem;                   /* same width as the photo above */
     margin: 0 auto;
@@ -439,11 +418,27 @@ canvas {
 /* phones and small tablets: stack image + text rows vertically */
 @media screen and (max-width: 48rem) {
     .container-body { margin: 0 1rem 0 1rem }
-    header { margin: 1rem; }
+    header {
+        margin: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        align-items: center;
+        gap: 0.75rem;                     /* keep BORDEL and the menu apart */
+        font-size: clamp(15px, 4.6vw, 22px);   /* 4 links must fit a 360px screen */
+    }
+    header nav { gap: 0.75rem; }
+    header a { white-space: nowrap; }      /* never break "JOIN US" onto two lines */
     h1 { font-size: 48px; padding-top: 4rem; }
     h2 { font-size: 22px; }
     .padding-top-8 { padding-top: 4rem; }
-    a.button { margin: 0.5rem; }
+    /* hero buttons: stacked, same width, centred */
+    a.button,
+    a.button:link,
+    a.button:visited {
+        display: block;
+        box-sizing: border-box;
+        width: min(100%, 20rem);
+        margin: 0.5rem auto;
+    }
 
     /* space for everyone: stack photo above text */
     .features { gap: 2.5rem; }

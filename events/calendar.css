@@ -190,7 +190,7 @@ button:focus-visible { outline: 2px solid var(--y); outline-offset: 1px; }
 
 /* ===== Tablet: panel under the calendar ===== */
 @media (max-width: 980px) {
-  .layout { grid-template-columns: minmax(0, 1fr); }
+  .layout { grid-template-columns: minmax(0, 1fr); align-content: start; }  /* stacked: no gap between calendar and panel on tall screens */
 }
 
 /* ===== Phone: compact grid, events become colour bars ===== */
