@@ -1,7 +1,15 @@
 * {margin: 0; padding: 0}
 body {
     background-color: #111111;
-    color: white}
+    color: white;
+    /* thin black outline so text stays readable over the green matrix rain
+       (inherited; elements with their own neon glow keep it) */
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #000, -1px -1px 2px #000;
+}
+/* ...but not on text that already sits on its own box/background */
+a.button, button, header, .feature-text, .callout, .slide > p {
+    text-shadow: none;
+}
 .container-body { margin: 0 20rem 0 20rem }
 .font-color-green { color: #0f0 !important; }
 canvas {
@@ -25,7 +33,7 @@ h4 {
     font-size: 1.5rem;
 }
 p {
-    font-size: 15px
+    font-size: 17px
 }
 .font-size-20 {
     font-size: 20px;
@@ -139,7 +147,7 @@ p {
 }
 .feature-num {
     font-family: Beon;
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: 0.2em;
     color: #0f0;
     opacity: 0.55;
@@ -194,7 +202,8 @@ p {
 
 .slide-photo {
     aspect-ratio: 16 / 9;
-    max-height: 60vh;
+    max-width: 45rem;               /* ~720px: keep photos compact on wide screens */
+    max-height: 50vh;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -212,10 +221,50 @@ p {
     pointer-events: none;           /* don't let the browser drag the image */
 }
 
+/* a real photo gets a solid frame; the dashed one marks "Photo coming soon" */
+.slide-photo:has(img) { border-style: solid; }
+/* portrait images (map, poster): show the whole picture instead of cropping it */
+.slide-photo--fit img { object-fit: contain; }
+
+/* slides without a photo yet: the activity text fills the frame instead */
+.slide-photo--text { border-style: solid; }
+.slide .slide-photo--text p {
+    padding: 0 8%;
+    background: none;
+    color: #0f0;
+    font-size: clamp(1.6rem, 1rem + 2.2vw, 2.8rem);
+    line-height: 1.3;
+    text-align: center;
+    text-shadow: 0 0 6px rgba(0, 255, 0, 0.6), 0 0 18px rgba(0, 255, 0, 0.35);
+}
+
+/* several photos in one slide: big one on the left, two stacked on the right.
+   Column/row sizes follow the photos' own shapes, so they are barely cropped. */
+.slide-photo--collage {
+    aspect-ratio: 2.1 / 1;
+    display: grid;
+    grid-template-columns: 1.75fr 1fr;
+    grid-template-rows: 38fr 62fr;
+    gap: 4px;
+    border-style: solid;
+}
+.slide-photo--collage img { min-width: 0; min-height: 0; }
+.slide-photo--collage .collage-main { grid-row: 1 / 3; }
+
 .slide p {
     text-align: center;
     padding: 1rem 0;
     background-color: rgba(17, 17, 17, 0.85);
+}
+/* caption under the photo (direct child only, not the text inside the [REDACTED] placeholder) */
+.slide > p {
+    max-width: 45rem;                   /* same width as the photo above */
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 1rem 1.25rem;
+    color: #0f0;
+    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.5rem);
+    line-height: 1.45;
 }
 
 /* neon glowing < > arrows */
