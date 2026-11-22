@@ -115,8 +115,7 @@ update();
     // "pos" = position in the track including clones (0 .. n+1); real slide i is at pos i+1
     let pos = 1,
         timer = null,
-        paused = false,
-        anim = null;                     // requestAnimationFrame id of the running slide animation
+        anim = null;                    // requestAnimationFrame id of the running slide animation
 
     const SLIDE_MS = reducedMotion ? 0 : 500;
 
@@ -202,23 +201,16 @@ update();
     slider.querySelector('.slider-prev').addEventListener('click', () => { scrollToPos(pos - 1); restart(); });
     slider.querySelector('.slider-next').addEventListener('click', () => { scrollToPos(pos + 1); restart(); });
 
-    // autoplay: advance every few seconds, pause while the user is interacting
+    // autoplay: keeps advancing every few seconds, also while hovered or focused.
+    // Any manual move (arrow, dot, key, swipe, drag) calls restart(), so the next
+    // automatic step waits a full interval instead of jumping right after it.
     function restart() {
         clearInterval(timer);
-        if (reducedMotion || paused || document.hidden) return;
-        timer = setInterval(() => scrollToPos(pos + 1), AUTOPLAY_MS);
+        if (reducedMotion || document.hidden) return;   // nobody watching / user asked for less motion
+        timer = setInterval(() => {
+            if (!track.classList.contains('dragging')) scrollToPos(pos + 1);   // never yank a slide mid-drag
+        }, AUTOPLAY_MS);
     }
-    function pause() { paused = true; clearInterval(timer); }
-    function resume() { paused = false; restart(); }
-
-    slider.addEventListener('mouseenter', pause);
-    slider.addEventListener('mouseleave', resume);
-    // pause for keyboard users only; a mouse click on an arrow/dot also gives
-    // the button focus, which would otherwise keep the slider paused forever
-    slider.addEventListener('focusin', (e) => { if (e.target.matches(':focus-visible')) pause(); });
-    slider.addEventListener('focusout', (e) => {
-        if (!slider.contains(e.relatedTarget) && !slider.matches(':hover')) resume();
-    });
     track.addEventListener('touchstart', restart, { passive: true });
     document.addEventListener('visibilitychange', restart);
 
@@ -248,6 +240,7 @@ update();
             threshold = width() * 0.15;
         // a short drag snaps back, a longer one moves to the neighbouring slide
         scrollToPos(dx < -threshold ? dragStartPos + 1 : dx > threshold ? dragStartPos - 1 : dragStartPos);
+        restart();
     }
     track.addEventListener('pointerup', endDrag);
     track.addEventListener('pointercancel', endDrag);

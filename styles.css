@@ -84,11 +84,11 @@ p {
 
 .feature {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 4fr 5fr;      /* photo ~44%, text ~56% */
     align-items: center;
     gap: 2.5rem;
 }
-.feature-reverse { grid-template-columns: 2fr 3fr; }
+.feature-reverse { grid-template-columns: 5fr 4fr; }
 .feature-reverse .feature-media { order: 2; }
 
 .feature-media {
