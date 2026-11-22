@@ -256,6 +256,22 @@ update();
         if (dragged) { e.preventDefault(); dragged = false; }
     }, true);
 
+    // keyboard ← / → change slides while the slider is mostly on screen (or focused)
+    let inView = false;
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; }, { threshold: 0.5 }).observe(slider);
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        if (e.repeat || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        const t = e.target;
+        if (t.isContentEditable || (t.closest && t.closest('input, textarea, select'))) return;  // typing
+        if (!inView && !slider.contains(document.activeElement)) return;
+        e.preventDefault();
+        scrollToPos(pos + (e.key === 'ArrowRight' ? 1 : -1));
+        restart();
+    });
+
     // keep the visible slide aligned after a resize
     window.addEventListener('resize', () => jumpTo(pos));
 
