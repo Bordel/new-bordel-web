@@ -1,0 +1,229 @@
+/* Real teletext font: Bedstead (public domain, https://bjh21.me.uk/bedstead/) */
+@font-face {
+  font-family: 'Bedstead';
+  src: url('fonts/bedstead.otf') format('opentype');
+  font-display: swap;
+}
+
+/* ===== The 8 teletext colours — that's all there is ===== */
+:root {
+  --k: #000000;  /* black   */
+  --r: #ff0000;  /* red     */
+  --g: #00ff00;  /* green   */
+  --y: #ffff00;  /* yellow  */
+  --b: #0000ff;  /* blue    */
+  --m: #ff00ff;  /* magenta */
+  --c: #00ffff;  /* cyan    */
+  --w: #ffffff;  /* white   */
+  --font: 'Bedstead', 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+}
+
+/* Colour helpers: f = text, b = background */
+.fk { color: var(--k); } .fr { color: var(--r); } .fg { color: var(--g); } .fy { color: var(--y); }
+.fb { color: var(--b); } .fm { color: var(--m); } .fc { color: var(--c); } .fw { color: var(--w); }
+.bk { background: var(--k); } .br { background: var(--r); } .bg { background: var(--g); } .by { background: var(--y); }
+.bb { background: var(--b); } .bm { background: var(--m); } .bc { background: var(--c); } .bw { background: var(--w); }
+
+/* Event type → colour. Add a line for each new type. */
+.type--workshop { --tc: var(--c); }
+.type--talk     { --tc: var(--m); }
+.type--ctf      { --tc: var(--r); }
+.type--meetup   { --tc: var(--g); }
+.type--party    { --tc: var(--y); }
+.type--event    { --tc: var(--w); }
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { margin: 0; background: var(--k); }
+body {
+  color: var(--w);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: clamp(16px, 1.55vw, 21px);
+  line-height: 1.25;
+  min-height: 100vh;
+}
+
+a { color: var(--y); text-decoration: none; }
+a:hover, a:focus-visible { text-decoration: underline; outline: none; }
+
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: left; }
+button:focus-visible { outline: 2px solid var(--y); outline-offset: 1px; }
+.link:hover, .navbtn:hover, .fastext button:hover { text-decoration: underline; }
+
+/* ===== Page frame ===== */
+.tv {
+  position: relative;
+  max-width: 1360px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: .8em 1.4em 1em;
+  display: flex;
+  flex-direction: column;
+  gap: .7em;
+}
+.tv::after {               /* faint scanlines — delete to remove */
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, .25) 2px 3px);
+}
+
+/* Header line: P300 HACKTEXT 300 Sun 15 Nov 19:05/09 */
+.tt-header { display: flex; flex-wrap: wrap; gap: 0 1.2ch; }
+
+/* Mosaic colour stripe */
+.stripe { display: flex; height: .55em; }
+.stripe span { flex: 1; }
+
+/* Coloured bands */
+.band { margin: 0; background: var(--b); color: var(--y); padding: .1em .6em; font-weight: inherit; }
+.band--title { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .3em 1em; padding: .35em .6em; }
+.band__meta { margin: 0; color: var(--c); }
+.band--sub { font-size: 1em; }
+.panel__head { display: flex; justify-content: space-between; align-items: center; gap: 1em; }
+.panel__head h2 { margin: 0; font-weight: inherit; }
+.close { color: var(--w); white-space: nowrap; }
+.close:hover, .close:focus-visible { background: var(--w); color: var(--b); }
+
+/* Double height text, like teletext titles */
+.dh { margin: 0; font-size: 1.15em; font-weight: inherit; line-height: 1; height: 2em; }
+.dh span { display: inline-block; transform: scaleY(2); transform-origin: top; }
+
+/* ===== Layout: calendar + side panel ===== */
+.layout { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 19em; gap: 1.4em; align-items: start; }
+
+/* ===== Calendar ===== */
+.cal__nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1em; margin-bottom: .5em; }
+.navbtn { color: var(--w); white-space: nowrap; }
+.navbtn--right { justify-self: end; }
+.cal__title {
+  margin: 0; font-weight: inherit; font-size: 1.1em; line-height: 1; height: 2em;
+  color: var(--y); text-align: center; letter-spacing: .1em;
+}
+.cal__title span { display: inline-block; transform: scaleY(2); transform-origin: top; }
+
+.cal__weekdays, .cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.cal__weekdays { padding: 0 3px; }
+.cal__weekdays span { padding: .1em .35em; color: var(--c); }
+.cal__weekdays .is-weekend { color: var(--w); }
+
+.cal__grid { background: var(--b); border: 3px solid var(--b); }
+
+.day, .day--empty { min-height: 5.4em; min-width: 0; background: var(--k); }
+.day {
+  display: flex; flex-direction: column; gap: .15em;
+  padding: .2em .3em .3em;
+}
+.day:hover { box-shadow: inset 0 0 0 2px var(--w); }
+.day:focus-visible { outline: 3px solid var(--y); outline-offset: -3px; }
+.day.is-selected { background: var(--b); }
+
+.day__num { align-self: flex-start; color: var(--w); white-space: pre; }
+.day.is-today .day__num { color: var(--y); }
+.day.is-weekend .day__num { color: var(--c); }
+.day.is-today.is-weekend .day__num { color: var(--y); }
+
+/* Event blocks inside a day */
+.chip {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  padding: 0 .25em;
+  font-size: .85em;
+  line-height: 1.15;
+  background: var(--tc);
+  color: var(--k);
+}
+.day.is-past .chip { background: transparent; color: var(--tc); box-shadow: inset 0 0 0 1px var(--tc); }
+.more { font-size: .85em; color: var(--y); }
+
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: .4em 1.2em; margin: .7em 0 0; padding: 0; list-style: none; }
+.tag { padding: 0 .3em; background: var(--tc); color: var(--k); }
+
+/* ===== Side panel ===== */
+.panel section { display: flex; flex-direction: column; gap: .5em; }
+.panel p { margin: 0; }
+.empty { margin: 0; color: var(--c); }
+
+.ev { display: flex; flex-direction: column; gap: .15em; padding: .2em .6em .5em; }
+.ev + .ev { border-top: 2px solid var(--b); padding-top: .5em; }
+.ev__time { color: var(--c); }
+.ev__title { margin: 0; font-weight: inherit; font-size: 1.2em; line-height: 1.1; color: var(--w); }
+.ev__where { color: var(--w); }
+.ev__bring { color: var(--y); }
+.ev__desc { color: var(--w); }
+.ev__ics { align-self: flex-start; margin-top: .2em; color: var(--g); }
+.ev__ics:hover { text-decoration: underline; }
+
+.upcoming { list-style: none; margin: 0; padding: 0 .3em; }
+.upcoming button {
+  display: grid; grid-template-columns: 5.4em 3em minmax(0, 1fr); gap: .4em;
+  width: 100%; padding: .1em .3em;
+}
+.upcoming .u-date { color: var(--w); }
+.upcoming .u-time { color: var(--c); }
+.upcoming .u-title { color: var(--w); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.upcoming button:hover, .upcoming button:focus-visible { background: var(--b); outline: none; }
+
+.facts { margin: 0; padding: 0 .6em; display: flex; flex-direction: column; gap: .15em; }
+.facts > div { display: grid; grid-template-columns: 4em minmax(0, 1fr); gap: .5em; }
+.facts dt { color: var(--y); }
+.facts dd { margin: 0; }
+.fingerprint { margin: 0; padding: 0 .6em; font: inherit; color: var(--g); white-space: pre-wrap; }
+.panel .link { align-self: flex-start; padding: 0 .6em; color: var(--c); }
+
+/* ===== Hint + Fastext ===== */
+.hint { margin: .4em 0 0; color: var(--c); }
+.hint .link { color: var(--w); }
+#status { color: var(--y); }
+#status:not(:empty) + #hint-default { display: none; }
+
+.fastext { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4em 1em; font-size: 1.1em; }
+.fastext button { padding: .15em 0; }
+
+/* ===== Tablet: panel under the calendar ===== */
+@media (max-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ===== Phone: compact grid, events become colour bars ===== */
+@media (max-width: 640px) {
+  .tv { padding: .6em .7em .8em; }
+  .cal__nav { gap: .4em; }
+  .cal__nav .yr, .hide-sm { display: none; }
+  .cal__title { white-space: nowrap; font-size: 1em; letter-spacing: .05em; }
+  .day, .day--empty { min-height: 3.4em; }
+  .day { align-items: center; }
+  .day__num { align-self: center; }
+  .chip { display: block; width: 100%; height: 6px; padding: 0; font-size: 0; }
+  .day.is-past .chip { box-shadow: inset 0 0 0 1px var(--tc); }
+  .more { display: none; }
+  .cal__weekdays span { padding: .1em 0; text-align: center; }
+  .fastext { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ===== List / calendar switch + home link (top-left corner) ===== */
+.tt-header { align-items: center; }
+.switch { display: inline-flex; border: 1px solid var(--w); }
+.switch a { color: var(--c); padding: 0 .5ch; }
+.switch a[aria-current="page"] { background: var(--w); color: var(--k); }
+.switch a:not([aria-current]):hover,
+.switch a:not([aria-current]):focus-visible { background: var(--b); color: var(--w); text-decoration: none; }
+.tt-header .home { color: var(--w); }
+
+/* ===== Teletext remote: page number + phone keypad ===== */
+.tt-page { color: var(--w); font: inherit; padding: 0 .3ch; }
+.tt-page:hover, .tt-page[aria-expanded="true"] { background: var(--w); color: var(--k); text-decoration: none; }
+.keypad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin: .3em 0; max-width: 22em; }
+.keypad button { background: var(--b); color: var(--w); padding: .35em 0; text-align: center; }
+.keypad button:hover, .keypad button:active { background: var(--y); color: var(--k); }
+
+/* ===== Teletext mosaic mouse pointer (yellow over clickable things) ===== */
+html { cursor: url('cursors/tt-arrow.png') 1 1, auto; }
+a, button, [data-key] { cursor: url('cursors/tt-arrow-link.png') 1 1, pointer; }

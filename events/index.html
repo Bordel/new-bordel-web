@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calendar · Bordel Teletext</title>
+  <!-- Fallback font, used until you add fonts/bedstead.otf (see README) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="calendar.css">
+</head>
+<body>
+  <div class="tv">
+    <!-- Teletext header line: page · service · date · clock -->
+    <header class="tt-header">
+      <nav class="switch" aria-label="Choose view"><a href="./" aria-current="page">▦ CALENDAR</a><a href="list/">≡ LIST</a></nav>
+      <a href="../" class="home">« BORDEL</a>
+      <button type="button" id="tt-page" class="tt-page" aria-label="Page number. Type 3 digits or tap for keypad" aria-expanded="false" aria-controls="keypad">P300</button>
+      <span class="fy">BORDELTEXT</span>
+      <span id="tt-current" class="hide-sm">300</span>
+      <span id="tt-date"></span>
+      <span id="tt-clock" class="fy"></span>
+    </header>
+
+    <!-- Number keypad for phones (tap the page number) -->
+    <div id="keypad" class="keypad" hidden>
+      <button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button>
+      <button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button>
+      <button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button>
+      <button type="button" data-digit="0">0</button>
+    </div>
+
+    <div class="stripe" aria-hidden="true">
+      <span class="br"></span><span class="by"></span><span class="bg"></span><span class="bc"></span>
+      <span class="bb"></span><span class="bm"></span><span class="br"></span><span class="by"></span>
+    </div>
+
+    <div class="band band--title">
+      <h1 class="dh"><span class="fy">EVENTS</span> <span class="fw">BORDEL</span></h1>
+      <p class="band__meta">UPDATED <span id="last-update"></span></p>
+    </div>
+
+    <main class="layout">
+      <!-- ===== Month calendar ===== -->
+      <section class="cal" aria-labelledby="month-title">
+        <div class="cal__nav">
+          <button type="button" id="prev-label" class="navbtn" data-key="p" aria-label="Previous month"></button>
+          <h2 id="month-title" class="cal__title" aria-live="polite"></h2>
+          <button type="button" id="next-label" class="navbtn navbtn--right" data-key="n" aria-label="Next month"></button>
+        </div>
+
+        <div id="weekdays" class="cal__weekdays" aria-hidden="true"></div>
+        <div id="grid" class="cal__grid" role="group" aria-labelledby="month-title"></div>
+
+        <ul class="legend" aria-label="Legend">
+          <li><span class="tag type--workshop">WORKSHOP</span></li>
+          <li><span class="tag type--talk">TALK</span></li>
+          <li><span class="tag type--ctf">CTF</span></li>
+          <li><span class="tag type--meetup">MEETUP</span></li>
+          <li><span class="tag type--party">PARTY</span></li>
+          <li><span id="legend-today" class="fy">[15]</span> TODAY</li>
+        </ul>
+      </section>
+
+      <!-- ===== Side panel ===== -->
+      <aside class="panel">
+        <section id="view-day">
+          <h2 id="day-title" class="band band--sub" aria-live="polite"></h2>
+          <div id="day-events"></div>
+          <h3 class="band band--sub">NEXT UP</h3>
+          <ul id="upcoming" class="upcoming"></ul>
+        </section>
+
+        <section id="view-keys" hidden>
+          <div class="panel__head band">
+            <h2 class="band--sub">PGP KEYS</h2>
+            <button type="button" class="close" data-key="back" aria-label="Close PGP keys">✕ CLOSE</button>
+          </div>
+          <p>VERIFY ANNOUNCEMENTS WITH THE SYSOP KEY:</p>
+          <pre class="fingerprint">XXXX XXXX XXXX XXXX XXXX
+XXXX XXXX XXXX XXXX XXXX</pre>
+          <p><a href="pubkey.asc">► DOWNLOAD PUBKEY.ASC</a></p>
+          <button type="button" class="link" data-key="back">◄ BACK TO CALENDAR (ESC)</button>
+        </section>
+
+        <section id="view-help" hidden>
+          <div class="panel__head band">
+            <h2 class="band--sub">HOW TO USE</h2>
+            <button type="button" class="close" data-key="back" aria-label="Close help">✕ CLOSE</button>
+          </div>
+          <dl class="facts">
+            <div><dt>← →</dt><dd>PREVIOUS / NEXT DAY</dd></div>
+            <div><dt>↑ ↓</dt><dd>PREVIOUS / NEXT WEEK</dd></div>
+            <div><dt class="fr">R</dt><dd>PREVIOUS MONTH</dd></div>
+            <div><dt class="fg">G</dt><dd>TODAY</dd></div>
+            <div><dt class="fy">Y</dt><dd>NEXT MONTH</dd></div>
+            <div><dt class="fc">B</dt><dd>DOWNLOAD UPCOMING (.ICS)</dd></div>
+            <div><dt>V</dt><dd>SWITCH TO LIST VIEW</dd></div>
+            <div><dt>0–9</dt><dd>TYPE A PAGE NUMBER</dd></div>
+          </dl>
+          <h3 class="band band--sub">PAGE INDEX</h3>
+          <dl class="facts">
+            <div><dt>100</dt><dd>BORDEL HOME</dd></div>
+            <div><dt>200</dt><dd>EVENT LIST</dd></div>
+            <div><dt>300</dt><dd>CALENDAR · TODAY</dd></div>
+            <div><dt>301–312</dt><dd>JANUARY – DECEMBER</dd></div>
+            <div><dt>400</dt><dd>PGP KEYS</dd></div>
+            <div><dt>500</dt><dd>THIS HELP PAGE</dd></div>
+            <div><dt>K</dt><dd>PGP KEYS</dd></div>
+            <div><dt>ESC</dt><dd>BACK</dd></div>
+          </dl>
+          <p>OR JUST CLICK / TAP ANY DAY.</p>
+          <button type="button" class="link" data-key="back">◄ BACK TO CALENDAR (ESC)</button>
+        </section>
+      </aside>
+    </main>
+
+    <!-- Hint row -->
+    <p class="hint">
+      <span id="status" role="status"></span>
+      <span id="hint-default"><!-- PICK A DAY · -->
+        <button type="button" class="link" data-key="?" aria-pressed="false">HELP</button> ·
+        <button type="button" class="link" data-key="k" aria-pressed="false">PGP KEYS</button></span>
+    </p>
+
+    <!-- Fastext: the 4 coloured buttons -->
+    <nav class="fastext" aria-label="Fastext">
+      <button type="button" class="fr" data-key="p">◄ PREV MONTH</button>
+      <button type="button" class="fg" data-key="t">TODAY</button>
+      <button type="button" class="fy" data-key="n">NEXT MONTH ►</button>
+      <button type="button" class="fc" data-key="s">SUBSCRIBE .ICS</button>
+    </nav>
+  </div>
+
+  <script src="events.js"></script>
+  <script src="signed-events.js"></script>
+  <script src="calendar.js"></script>
+</body>
+</html>

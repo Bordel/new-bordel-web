@@ -1,0 +1,54 @@
+name: Add signed event
+
+# Runs when someone opens (or edits) an issue that contains a PGP clearsigned block.
+# The signature is checked against events/keys/*.asc; valid events are committed.
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write
+  issues: write
+
+# One event at a time, so two submissions never fight over the same file.
+concurrency:
+  group: add-event
+  cancel-in-progress: false
+
+jobs:
+  add-event:
+    if: github.event.issue.state == 'open' && contains(github.event.issue.body, '-----BEGIN PGP SIGNED MESSAGE-----')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify signature and add event
+        id: add
+        env:
+          # Passed through env (never inlined into the script) so issue text can't inject shell commands.
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: python3 .github/scripts/add_event.py
+
+      - name: Commit and push
+        if: steps.add.outputs.result == 'added'
+        env:
+          COMMIT_MSG: ${{ steps.add.outputs.commit_msg }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add events/signed-events.json events/signed-events.js
+          git commit -m "$COMMIT_MSG"
+          git pull --rebase
+          git push
+
+      - name: Comment on the issue
+        if: always() && steps.add.outputs.result != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ steps.add.outputs.result }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+          if [ "$RESULT" = "added" ]; then
+            gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed
+          fi
