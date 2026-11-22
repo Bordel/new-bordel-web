@@ -456,3 +456,34 @@ canvas {
     .slide { padding: 0; }
     .slider-arrow { display: none; }
 }
+
+/* "Follow us on Bluesky" link in the Join us section */
+.follow {                    /* text, then one link per line, centred */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+}
+.follow-link,
+.follow-link:link,
+.follow-link:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.35em 0.9em;
+    border: 1px solid #0f0;
+    border-radius: 999px;
+    color: #0f0;
+    text-decoration: none;
+    text-shadow: none;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.25);
+    transition: box-shadow 0.2s, background-color 0.2s;
+    white-space: nowrap;
+}
+.follow-link:hover,
+.follow-link:focus-visible {
+    background-color: rgba(0, 255, 0, 0.12);
+    box-shadow: 0 0 18px rgba(0, 255, 0, 0.55);
+}
+.follow-icon { width: 1.1em; height: 1.1em; fill: currentColor; }
