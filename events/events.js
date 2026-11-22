@@ -10,6 +10,10 @@
  *   location    optional
  *   bring       optional
  *   description optional
+ *   links       optional: { 'phrase from the description': 'https://...' } makes that phrase a link
+ *
+ * Multi-day events: just set a long durationMin, e.g. 4 days = 4 * 24 * 60.
+ * The event is then shown on every day it covers.
  *
  * Repeating events:
  *   repeat: 'weekly', until: 'YYYY-MM-DD'      → every week on the same weekday
@@ -28,4 +32,15 @@ window.EVENTS = [
     description: 'Build a small blinky kit.'
   },
   */
+    {
+        id: 'ccc-bordel-assembly-2026',
+        title: 'CCC Bordel Assembly',
+        start: '2026-12-27 10:00',
+        durationMin: 4800,   // 4 days: Sun 27 Dec 10:00 – Wed 30 Dec 18:00
+        type: 'meetup',
+        location: 'Hamburg Messe',
+        bring: '',
+        description: 'Bordel assembly will take place as part of the CDC (Critical Decentralisation Cluster) at the CCC (Chaos Communication Congress). Come contribute your chaos to our projects focused on collecting entropy, chat about privacy, free and open-source software (FOSS), and the latest news from our community.',
+        links: { 'Chaos Communication Congress': 'https://events.ccc.de/congress/2026/infos/startpage.html' }
+    },
 ];

@@ -210,3 +210,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ===== Teletext mosaic mouse pointer (yellow over clickable things) ===== */
 html { cursor: url('../cursors/tt-arrow.png') 1 1, auto; }
 a, button, [data-key], .overlay { cursor: url('../cursors/tt-arrow-link.png') 1 1, pointer; }
+
+/* links inside an event description (ev.links) */
+.panel__text a { color: var(--bcyan); text-decoration: underline; }
+.panel__text a:hover, .panel__text a:focus-visible { background: var(--bcyan); color: var(--black); text-decoration: none; }

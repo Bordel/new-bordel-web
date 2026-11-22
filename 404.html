@@ -10,6 +10,7 @@
     so this file is fully self-contained (no relative CSS/JS/fonts that could break).
     Each visit shows a random "crash": kernel panic, segfault, blue screen or IT support.
     [ REBOOT ] shows another one. Without JavaScript the kernel panic is shown.
+    The last crash is kept in sessionStorage (or window.name only if storage is blocked).
   -->
   <style>
     :root { --bg: #0b0b0b; --fg: #d8d8d8; --green: #0f0; --dim: #00a400; --red: #ff3b3b; }
@@ -128,9 +129,9 @@ Program terminated with signal SIGSEGV, Segmentation fault.
 
   <nav aria-label="Ways back">
     <button type="button" id="reboot" hidden>[ REBOOT ]</button>
-    <a href="/">« BORDEL</a>
-    <a href="/events/">EVENTS</a>
-    <a href="/#contact">CONTACT</a>
+    <a class="home" data-to="" href="/">« BORDEL</a>
+    <a class="home" data-to="events/" href="/events/">EVENTS</a>
+    <a class="home" data-to="#contact" href="/#contact">CONTACT</a>
   </nav>
 </main>
 
@@ -144,14 +145,34 @@ Program terminated with signal SIGSEGV, Segmentation fault.
   try { path = decodeURIComponent(path); } catch (e) { /* malformed %-escape: show it as is */ }
   document.querySelectorAll('.path').forEach((el) => { el.textContent = path; });
 
+  // Links point to "/" (right for bordel.wtf). Only on a GitHub *project* site
+  // (<org>.github.io/<repo>/) the site lives in a sub-folder: there we check that
+  // /<first-folder>/404.html really exists before pointing the links into it, so a
+  // missing page like /oldpage/ on a user site never becomes the "root".
+  if (/\.github\.io$/.test(location.hostname)) {
+    const first = location.pathname.split('/')[1];
+    if (first && !first.includes('.')) {
+      fetch('/' + first + '/404.html', { method: 'HEAD' })
+        .then((r) => {
+          if (!r.ok) return;
+          document.querySelectorAll('a.home').forEach((a) => { a.href = '/' + first + '/' + a.dataset.to; });
+        })
+        .catch(() => { /* offline: keep "/" */ });
+    }
+  }
+
   // Pick a random crash, never the same as last time. The last one is kept in
   // sessionStorage, or in window.name when storage is blocked (both survive a reload).
-  let last = window.name.startsWith('bordel404:') ? window.name.slice(10) : null;
-  try { last = sessionStorage.getItem('bordel404') || last; } catch (e) { /* storage blocked */ }
+  let storage = null;
+  try { storage = window.sessionStorage; storage.setItem('bordel404-test', '1'); storage.removeItem('bordel404-test'); }
+  catch (e) { storage = null; }
+  const ownName = window.name === '' || window.name.startsWith('bordel404:');   // never touch a name set by someone else
+  const last = storage ? storage.getItem('bordel404')
+             : (ownName && window.name ? window.name.slice(10) : null);
   const pool = crashes.filter((c) => c !== last);
   const pick = pool[Math.floor(Math.random() * pool.length)];
-  try { sessionStorage.setItem('bordel404', pick); } catch (e) { /* ignore */ }
-  window.name = 'bordel404:' + pick;
+  if (storage) storage.setItem('bordel404', pick);
+  else if (ownName) window.name = 'bordel404:' + pick;
 
   // without JavaScript the kernel panic stays visible; with it, show the random pick
   document.getElementById('panic').classList.remove('on');

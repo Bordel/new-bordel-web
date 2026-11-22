@@ -199,12 +199,15 @@
     const ev = state.list[state.index];
     if (!ev) return;
     el.d.title.textContent = ev.title.toUpperCase();
-    el.d.when.textContent = fmtLong.format(ev.start).toUpperCase() + ' · ' + fmtTime.format(ev.start) + '–' + fmtTime.format(ev.end);
+    const endDay = new Date(Math.max(ev.start.getTime(), ev.end.getTime() - 1));
+    el.d.when.textContent = fmtLong.format(ev.start) === fmtLong.format(endDay)
+      ? fmtLong.format(ev.start).toUpperCase() + ' · ' + fmtTime.format(ev.start) + '–' + fmtTime.format(ev.end)
+      : (fmtLong.format(ev.start) + ' ' + fmtTime.format(ev.start) + ' – ' + fmtLong.format(ev.end) + ' ' + fmtTime.format(ev.end)).toUpperCase();
     el.d.where.textContent = (ev.location || 'TBA').toUpperCase();
     el.d.type.textContent = (ev.type || 'event').toUpperCase();
     el.d.bring.textContent = (ev.bring || '').toUpperCase();
     el.d.bringRow.hidden = !ev.bring;
-    el.d.desc.textContent = ev.description || '';
+    withLinks(el.d.desc, ev.description, ev.links);
     showView('detail');
   }
 
@@ -218,6 +221,29 @@
     clearTimeout(statusTimer);
     statusTimer = setTimeout(() => { el.status.textContent = ''; }, 3000);
   }
+
+  /* Description text with optional links: ev.links = { 'phrase in the text': 'https://...' }.
+     Each phrase becomes a link (new tab); only http(s) URLs are used, text stays textContent. */
+  function withLinks(parent, text, links) {
+    const map = links && typeof links === 'object'
+      ? Object.entries(links).filter(([t, u]) => t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
+    parent.replaceChildren();
+    let rest = String(text || '');
+    while (rest) {
+      let best = null;
+      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i)) best = { i, t, u }; }
+      if (!best) { parent.append(rest); break; }
+      if (best.i) parent.append(rest.slice(0, best.i));
+      const a = document.createElement('a');
+      a.href = best.u; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = best.t;
+      parent.append(a);
+      rest = rest.slice(best.i + best.t.length);
+    }
+    return parent;
+  }
+  // links also go into the .ics description, as "phrase: url" lines
+  const linkLines = (ev) => (ev.links && typeof ev.links === 'object')
+    ? Object.entries(ev.links).filter(([, u]) => /^https?:\/\//i.test(u)).map(([t, u]) => t + ': ' + u) : [];
 
   /* ===== 6. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); // 20261121T180000Z
@@ -249,7 +275,8 @@
         'DTEND:' + icsDate(ev.end),
         'SUMMARY:' + icsText(ev.title));
       if (ev.location) lines.push('LOCATION:' + icsText(ev.location));
-      if (ev.description || ev.bring) lines.push('DESCRIPTION:' + icsText([ev.description, ev.bring && 'Bring: ' + ev.bring].filter(Boolean).join('\n')));
+      const desc = [ev.description, ...linkLines(ev), ev.bring && 'Bring: ' + ev.bring].filter(Boolean).join('\n');
+      if (desc) lines.push('DESCRIPTION:' + icsText(desc));
       lines.push('END:VEVENT');
     });
     lines.push('END:VCALENDAR');

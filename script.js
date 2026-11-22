@@ -87,6 +87,22 @@ const update = function()
 
 update();
 
+// ---------- sticky header height ----------
+// Menu jumps (#about, #contact, ...) stop below the sticky header. Its height changes
+// when it wraps to two lines (narrow phones, big fonts), so publish the real height
+// as --header-h for the CSS scroll-margin.
+(function () {
+    const header = document.querySelector('header');
+    if (!header) return;
+    const update = () => {
+        const top = parseFloat(getComputedStyle(header).marginTop) || 0;
+        document.documentElement.style.setProperty('--header-h', Math.ceil(header.offsetHeight + top) + 'px');
+    };
+    update();
+    if ('ResizeObserver' in window) new ResizeObserver(update).observe(header);
+    else window.addEventListener('resize', update);
+})();
+
 // ---------- activities slider ----------
 // Seamless loop: a copy of the last slide sits before the first one and a copy
 // of the first slide after the last one. When the track lands on a copy, it

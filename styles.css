@@ -8,8 +8,9 @@ html { cursor: url('assets/cursors/logo-cursor.png') 2 2, auto; }
 /* over anything clickable: the hover version of the syringe */
 a, button { cursor: url('assets/cursors/logo-cursor-hover.png') 2 2, pointer; }
 
-/* menu jumps (#about, #joinUs, #contact): stop below the sticky header, not under it */
-[id] { scroll-margin-top: 4.5rem; }
+/* menu jumps (#about, #joinUs, #contact): stop below the sticky header, not under it.
+   --header-h is the header's real height (set by script.js; also when it wraps to 2 lines). */
+[id] { scroll-margin-top: calc(var(--header-h, 3rem) + 1.5rem); }
 body {
     background-color: #111111;
     color: white;
@@ -368,7 +369,11 @@ canvas {
         flex-wrap: wrap;                  /* safety net: wrap instead of overflowing (e.g. big system fonts) */
         font-size: clamp(12px, 3.5vw, 22px);
     }
-    header nav.flex-gap-1 { gap: 0.35rem; }   /* beat the 1rem .flex-gap-1 utility */
+    header nav.flex-gap-1 {                   /* beat the 1rem .flex-gap-1 utility */
+        gap: 0.35rem;
+        flex-wrap: wrap;                      /* safety net: the menu itself may wrap too */
+        justify-content: center;
+    }
     header a { white-space: nowrap; }      /* never break "JOIN US" onto two lines */
     h1 { font-size: 48px; padding-top: 4rem; }
     h2 { font-size: 22px; }
@@ -414,7 +419,7 @@ canvas {
 
 /* CONTACT menu link jumps to the contact paragraph; leave room so the
    "Join us" heading right above it stays visible under the sticky menu */
-#contact { scroll-margin-top: 8rem; }
+#contact { scroll-margin-top: calc(var(--header-h, 3rem) + 5rem); }
 
 /* "Follow us on Bluesky" link in the Join us section */
 .follow {                    /* text, then one link per line, centred */

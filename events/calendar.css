@@ -228,3 +228,7 @@ button:focus-visible { outline: 2px solid var(--y); outline-offset: 1px; }
 /* ===== Teletext mosaic mouse pointer (yellow over clickable things) ===== */
 html { cursor: url('cursors/tt-arrow.png') 1 1, auto; }
 a, button, [data-key] { cursor: url('cursors/tt-arrow-link.png') 1 1, pointer; }
+
+/* links inside an event description (ev.links) */
+.ev__desc a { color: var(--c); text-decoration: underline; }
+.ev__desc a:hover, .ev__desc a:focus-visible { background: var(--c); color: var(--k); text-decoration: none; }

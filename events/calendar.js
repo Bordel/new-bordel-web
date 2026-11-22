@@ -110,10 +110,14 @@
   });
   occurrences.sort((a, b) => a.start - b.start);
 
+  // an event is listed on every day it covers (multi-day events, e.g. a 4-day congress)
   const byDay = new Map();
   occurrences.forEach((o) => {
-    if (!byDay.has(o.dayKey)) byDay.set(o.dayKey, []);
-    byDay.get(o.dayKey).push(o);
+    o.endKey = keyOf(new Date(Math.max(o.start.getTime(), o.end.getTime() - 1)));
+    for (let k = o.dayKey; k <= o.endKey; k = addDays(k, 1)) {
+      if (!byDay.has(k)) byDay.set(k, []);
+      byDay.get(k).push(o);
+    }
   });
 
   /* ===== 5. State ===== */
@@ -178,7 +182,7 @@
       cell.append(node('span', 'day__num', k === todayKey ? '[' + d + ']' : String(d)));
       events.slice(0, CONFIG.maxChipsPerDay).forEach((ev) => {
         const chip = node('span', 'chip type--' + ev.type);
-        chip.append(node('span', 'chip__time', fmtTime.format(ev.start)), document.createTextNode(' '), node('span', 'chip__text', up(ev.title)));
+        chip.append(node('span', 'chip__time', k === ev.dayKey ? fmtTime.format(ev.start) : '»')   /* » = continues from an earlier day */, document.createTextNode(' '), node('span', 'chip__text', up(ev.title)));
         cell.append(chip);
       });
       if (events.length > CONFIG.maxChipsPerDay) {
@@ -205,14 +209,16 @@
 
     events.forEach((ev) => {
       const art = node('article', 'ev');
-      art.append(node('p', 'ev__time', fmtTime.format(ev.start) + '-' + fmtTime.format(ev.end)));
+      art.append(node('p', 'ev__time', ev.endKey !== ev.dayKey
+        ? shortDay(ev.dayKey) + ' ' + fmtTime.format(ev.start) + ' – ' + shortDay(ev.endKey) + ' ' + fmtTime.format(ev.end)
+        : fmtTime.format(ev.start) + '-' + fmtTime.format(ev.end)));
       art.append(node('h3', 'ev__title', up(ev.title)));
       const meta = node('p', 'ev__where');
       meta.append(node('span', 'tag type--' + ev.type, up(ev.type)));
       if (ev.location) meta.append(document.createTextNode(' ' + up(ev.location)));
       art.append(meta);
       if (ev.bring) art.append(node('p', 'ev__bring', 'BRING: ' + up(ev.bring)));
-      if (ev.description) art.append(node('p', 'ev__desc', ev.description));
+      if (ev.description) art.append(withLinks(node('p', 'ev__desc'), ev.description, ev.links));
       if (ev.end.getTime() >= Date.now()) {
         const b = node('button', 'ev__ics', '► ADD TO MY CALENDAR');
         b.type = 'button';
@@ -282,6 +288,29 @@
     statusTimer = setTimeout(() => { el.status.textContent = ''; }, 3000);
   }
 
+  /* Description text with optional links: ev.links = { 'phrase in the text': 'https://...' }.
+     Each phrase becomes a link (new tab); only http(s) URLs are used, text stays textContent. */
+  function withLinks(parent, text, links) {
+    const map = links && typeof links === 'object'
+      ? Object.entries(links).filter(([t, u]) => t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
+    parent.replaceChildren();
+    let rest = String(text || '');
+    while (rest) {
+      let best = null;
+      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i)) best = { i, t, u }; }
+      if (!best) { parent.append(rest); break; }
+      if (best.i) parent.append(rest.slice(0, best.i));
+      const a = document.createElement('a');
+      a.href = best.u; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = best.t;
+      parent.append(a);
+      rest = rest.slice(best.i + best.t.length);
+    }
+    return parent;
+  }
+  // links also go into the .ics description, as "phrase: url" lines
+  const linkLines = (ev) => (ev.links && typeof ev.links === 'object')
+    ? Object.entries(ev.links).filter(([, u]) => /^https?:\/\//i.test(u)).map(([t, u]) => t + ': ' + u) : [];
+
   /* ===== 8. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const icsText = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
@@ -307,7 +336,7 @@
       lines.push('BEGIN:VEVENT', 'UID:' + icsText(ev.uid) + '@' + host, 'DTSTAMP:' + stamp,
         'DTSTART:' + icsDate(ev.start), 'DTEND:' + icsDate(ev.end), 'SUMMARY:' + icsText(ev.title));
       if (ev.location) lines.push('LOCATION:' + icsText(ev.location));
-      const desc = [ev.description, ev.bring && 'Bring: ' + ev.bring].filter(Boolean).join('\n');
+      const desc = [ev.description, ...linkLines(ev), ev.bring && 'Bring: ' + ev.bring].filter(Boolean).join('\n');
       if (desc) lines.push('DESCRIPTION:' + icsText(desc));
       lines.push('END:VEVENT');
     });
