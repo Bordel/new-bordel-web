@@ -34,6 +34,18 @@ The used signature stays in `events/used-signatures.txt`, so nobody can re-publi
 Adding or removing a key file in `events/keys/` automatically updates the PGP KEYS section on the site
 (workflow `update-keys.yml` regenerates `events/keys/keys.js`).
 
+### Organizer keys (`events/keys/`)
+
+Every `<handle>.asc` file in [`events/keys/`](events/keys/) is the **public** PGP key of a Bordel organizer.
+Events signed by any of these keys are accepted by the "New event" issue form; the file name is shown as "signed by".
+
+- **Add an organizer:** they run `gpg --armor --export <their email> > <handle>.asc` and the file is committed to `events/keys/`.
+- **Remove an organizer:** delete their file. Their signatures stop being accepted right away.
+- `events/keys/keys.js` (the list shown in the PGP KEYS section of the events pages) is regenerated automatically
+  when a `.asc` file changes; locally: `python3 .github/scripts/add_event.py --build-keys`.
+
+Never put a private key there: everything in this repo is public.
+
 ### Option B: edit the file directly
 
 1. Open [`events/events.js`](events/events.js) and click the ✏️ pencil icon.

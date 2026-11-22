@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>404 · Bordel</title>
+  <!--
+    Custom 404 page. GitHub Pages serves /404.html for any missing URL, at any depth,
+    so this file is fully self-contained (no relative CSS/JS/fonts that could break).
+    Each visit shows a random "crash": kernel panic, segfault, blue screen or IT support.
+    [ REBOOT ] shows another one.
+  -->
+  <style>
+    :root { --bg: #0b0b0b; --fg: #d8d8d8; --green: #0f0; --dim: #00a400; --red: #ff3b3b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font: clamp(13px, 1.1vw + 8px, 18px)/1.55 ui-monospace, 'DejaVu Sans Mono', 'Courier New', monospace;
+    }
+    main { min-height: 100vh; padding: clamp(1rem, 4vw, 3rem); display: flex; flex-direction: column; }
+    .crash { display: none; flex: 1; }
+    .crash.on { display: block; }
+    pre { white-space: pre-wrap; word-break: break-word; font: inherit; }
+    .g { color: var(--green); } .d { color: var(--dim); } .r { color: var(--red); } .w { color: #fff; }
+    .cursor { display: inline-block; width: .6em; height: 1.1em; vertical-align: text-bottom; background: var(--green); animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* faint CRT scanlines over the terminal-style crashes */
+    body:not(.bsod)::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px);
+    }
+
+    /* blue screen variant: retro DOS-style blue */
+    body.bsod { background: #0000aa; color: #fff; }
+    .bsod-box { max-width: 46rem; margin: 6vh auto 0; }
+    .bsod-face { font: 700 clamp(4rem, 14vw, 8rem)/1 system-ui, sans-serif; margin-bottom: 1.5rem; }
+    .bsod-title { display: inline-block; background: #aaa; color: #0000aa; padding: 0 .5em; margin-bottom: 1.2rem; }
+    .bsod p { margin-bottom: 1rem; }
+    .bsod .progress { margin-top: 1.5rem; }
+
+    /* way back: always visible at the bottom */
+    nav {
+      margin-top: 2rem; padding-top: 1rem;
+      border-top: 1px solid rgba(0, 255, 0, .35);
+      display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; align-items: center;
+    }
+    body.bsod nav { border-top-color: rgba(255,255,255,.5); max-width: 46rem; width: 100%; margin-left: auto; margin-right: auto; }
+    nav a, nav button {
+      font: inherit; color: var(--green); background: none; border: 1px solid var(--green);
+      padding: .35em .9em; text-decoration: none; cursor: pointer;
+    }
+    nav a:hover, nav button:hover, nav a:focus-visible, nav button:focus-visible { background: rgba(0,255,0,.15); outline: none; }
+    body.bsod nav a, body.bsod nav button { color: #fff; border-color: #fff; }
+    body.bsod nav a:hover, body.bsod nav button:hover { background: rgba(255,255,255,.15); }
+    @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <!-- 1. Linux kernel panic -->
+  <section class="crash" id="panic" aria-label="Error 404: page not found">
+<pre><span class="d">[    0.000000]</span> Booting bordel.wtf ...
+<span class="d">[    0.004213]</span> Mounting requested page: <span class="w path"></span>
+<span class="d">[    0.004215]</span> <span class="r">VFS: Cannot open root device "<span class="path"></span>" or unknown-block(4,04)</span>
+<span class="d">[    0.004217]</span> Please append a correct "root=" boot option; here are the available pages:
+<span class="d">[    0.004218]</span>   /          home
+<span class="d">[    0.004218]</span>   /events/   events calendar
+<span class="d">[    0.004219]</span>   /#contact  signal, email, bluesky, x
+<span class="d">[    0.004404]</span> <span class="r">Kernel panic - not syncing: VFS: Unable to mount page on unknown-block(4,04)</span>
+<span class="d">[    0.004405]</span> CPU: 0 PID: 404 Comm: browser Tainted: G      D  bordel-6.6.6
+<span class="d">[    0.004406]</span> Call Trace:
+<span class="d">[    0.004406]</span>  &lt;TASK&gt;
+<span class="d">[    0.004407]</span>  dump_stack_lvl+0x404/0x404
+<span class="d">[    0.004408]</span>  panic+0x1d3/0x3a0
+<span class="d">[    0.004409]</span>  find_page_or_die+0x0/0x404
+<span class="d">[    0.004410]</span>  &lt;/TASK&gt;
+<span class="d">[    0.004411]</span> ---[ end Kernel panic - not syncing: page not found ]---<span class="cursor" aria-hidden="true"></span></pre>
+  </section>
+
+  <!-- 2. Segmentation fault with core dump -->
+  <section class="crash" id="segfault" aria-label="Error 404: page not found">
+<pre><span class="g">bordel@space:~$</span> ./open <span class="path"></span>
+<span class="r">Segmentation fault (core dumped)</span>
+<span class="g">bordel@space:~$</span> gdb ./open core
+Program terminated with signal SIGSEGV, Segmentation fault.
+#0  0x0000000000000404 in load_page (path=<span class="w">"<span class="path"></span>"</span>) at page.c:404
+404         return *page;   <span class="d">// page == NULL</span>
+<span class="g">(gdb)</span> x/4xg page
+<span class="r">0x0:    Cannot access memory at address 0x0</span>
+<span class="g">(gdb)</span> bt
+#0  load_page ()        at page.c:404
+#1  follow_link ()      at web.c:13
+#2  curiosity ()        at hacker.c:1337
+<span class="g">(gdb)</span> quit
+<span class="g">bordel@space:~$</span> <span class="cursor" aria-hidden="true"></span></pre>
+  </section>
+
+  <!-- 3. Blue screen -->
+  <section class="crash bsod" id="bsod" aria-label="Error 404: page not found">
+    <div class="bsod-box">
+      <div class="bsod-face" aria-hidden="true">:(</div>
+      <span class="bsod-title">BORDEL</span>
+      <p>Your browser ran into a problem: the page you asked for doesn't exist.
+         We're just collecting some error info, and then we'll do absolutely nothing about it.</p>
+      <p>Requested page: <span class="path"></span></p>
+      <p>Stop code: PAGE_NOT_FOUND (0x00000404)<br>What failed: link.sys</p>
+      <p class="progress"><span id="pct">0</span>% complete</p>
+    </div>
+  </section>
+
+  <!-- 4. IT support -->
+  <section class="crash" id="itcrowd" aria-label="Error 404: page not found">
+<pre><span class="g">404: Page not found.</span>
+
+<span class="w">Hello, IT. Have you tried turning it off and on again?</span>
+
+  [x] checked the URL:      <span class="path"></span>
+  [x] blamed the cache
+  [x] blamed DNS
+  [ ] turned it off and on again   <span class="d">&lt;- press [ REBOOT ] below</span>
+
+<span class="d">Still broken? Tell us on Signal or by email, we probably moved something.</span><span class="cursor" aria-hidden="true"></span></pre>
+  </section>
+
+  <nav aria-label="Ways back">
+    <button type="button" id="reboot">[ REBOOT ]</button>
+    <a class="home" href="/">« BORDEL</a>
+    <a class="home" data-to="events/" href="/events/">EVENTS</a>
+    <a class="home" data-to="#contact" href="/#contact">CONTACT</a>
+  </nav>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  const crashes = ['panic', 'segfault', 'bsod', 'itcrowd'];
+
+  // The missing path, shown inside the crash texts (textContent: never interpreted as HTML)
+  let path = location.pathname;
+  try { path = decodeURIComponent(path); } catch (e) { /* malformed %-escape: show it as is */ }
+  document.querySelectorAll('.path').forEach((el) => { el.textContent = path; });
+
+  // Site root: "/" for a custom domain or user site; "/<repo>/" for a GitHub project site
+  let root = '/';
+  if (/\.github\.io$/.test(location.hostname)) {
+    const first = location.pathname.split('/')[1];
+    if (first && !first.includes('.')) root = '/' + first + '/';
+  }
+  document.querySelectorAll('a.home').forEach((a) => { a.href = root + (a.dataset.to || ''); });
+
+  // Pick a random crash, never the same as last time
+  let last = null;
+  try { last = sessionStorage.getItem('bordel404'); } catch (e) { /* storage blocked */ }
+  const pool = crashes.filter((c) => c !== last);
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  try { sessionStorage.setItem('bordel404', pick); } catch (e) { /* ignore */ }
+
+  document.getElementById(pick).classList.add('on');
+  if (pick === 'bsod') {
+    document.body.classList.add('bsod');
+    const pct = document.getElementById('pct');
+    let n = 0;
+    const t = setInterval(() => { n = Math.min(100, n + Math.ceil(Math.random() * 9)); pct.textContent = n; if (n === 100) clearInterval(t); }, 350);
+  }
+
+  // [ REBOOT ]: reload, which shows a different crash
+  document.getElementById('reboot').addEventListener('click', () => location.reload());
+})();
+</script>
+</body>
+</html>

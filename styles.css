@@ -3,6 +3,8 @@
    Links/buttons get a hover variant; the normal cursors are the fallback. */
 html { cursor: url('assets/cursors/logo-cursor.png') 2 2, auto; }
 .slider-track { cursor: url('assets/cursors/logo-cursor.png') 2 2, grab; }
+/* while dragging a slide: grabbing hand everywhere, also over links inside the slide */
+.slider-track.dragging, .slider-track.dragging * { cursor: grabbing; }
 /* over anything clickable: the hover version of the syringe */
 a, button { cursor: url('assets/cursors/logo-cursor-hover.png') 2 2, pointer; }
 
@@ -44,41 +46,12 @@ h4 {
 p {
     font-size: 17px
 }
-.font-size-20 {
-    font-size: 20px;
-}
-.font-size-5 {
-    font-size: 20px;
-}
 
-.padding-top-0-5 {padding-top: 0.5rem}
-.padding-top-1 {padding-top: 1rem}
-.padding-top-1-5 {padding-top: 1.5rem}
 .padding-top-2 {padding-top: 2rem}
-.padding-top-2-5 {padding-top: 2.5rem}
-.padding-top-3 {padding-top: 3rem}
-.padding-top-3-5 {padding-top: 3.5rem}
 
 .padding-top-8 {
     padding-top: 8rem;
 }
-
-.padding-left-0-5 {padding-left: 0.5rem}
-.padding-left-1 {padding-left: 1rem}
-.padding-left-1-5 {padding-left: 1.5rem}
-.padding-left-2 {padding-left: 2rem}
-.padding-left-2-5 {padding-left: 2.5rem}
-.padding-left-3 {padding-left: 3rem}
-.padding-left-3-5 {padding-left: 3.5rem}
-.padding-left-4 {padding-left: 4rem}
-.padding-left-4-5 {padding-left: 4.5rem}
-.padding-left-5 {padding-left: 5rem}
-.padding-left-5-5 {padding-left: 5.5rem}
-.padding-left-6 {padding-left: 6rem}
-.padding-left-6-5 {padding-left: 6.5rem}
-.padding-left-7 {padding-left: 7rem}
-.padding-left-7-5 {padding-left: 7.5rem}
-.padding-left-8 {padding-left: 8rem}
 
 /* ---------- space for everyone ---------- */
 .features {
@@ -340,30 +313,10 @@ a.button:visited {
     border-radius: 5px;
     font-weight: bold;
 }
-.text-right {text-align: right}
 .text-center {text-align: center}
-.text-wrap {text-wrap: inherit}
-.margin-left-20 {margin-left: 20rem}
-.margin-left-10 {margin-left: 10rem}
 
-.ul-without-dots {
-    list-style-type: square;
-}
 li::marker {
     color: lime;
-}
-
-.width-20-rem {
-    width: 30rem;
-    max-width: 100%;
-}
-
-.width-5-rem {
-    width: 5rem;
-}
-
-.width-50-percent {
-    width: 50%;
 }
 
 .d-flex {
@@ -372,38 +325,6 @@ li::marker {
 
 .flex-gap-1 {
     gap: 1rem;
-}
-
-.li-div-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.justify-content-center {
-    justify-content: center;
-}
-
-.justify-content-right {
-    justify-content: right;
-}
-
-.justify-content-left {
-    justify-content: left;
-}
-
-.white-text {
-    color: white;
-}
-
-.position-absolute {
-    position: absolute;
-}
-
-
-.img-smoothie {
-    padding-left: 54rem;
-    margin-top: -2rem;
 }
 
 header {
@@ -416,13 +337,12 @@ header {
     margin: 1rem 2rem 1rem 2rem;
 }
 
-/* "|" between the menu items (ABOUT | EVENTS | JOIN US | CONTACT) */
-header nav a + a::before {
-    content: '|';
-    display: inline-block;           /* keeps the link underline/hover off the pipe */
-    margin-right: 1rem;              /* same as the gap on the other side */
+/* "|" between the menu items (ABOUT | EVENTS | JOIN US | CONTACT): its own element,
+   so it is not part of any link's click area */
+header nav { align-items: center; }
+header nav .sep {
     color: rgba(0, 255, 0, 0.45);
-    pointer-events: none;
+    user-select: none;
 }
 
 canvas {
@@ -430,18 +350,6 @@ canvas {
     position: absolute;
     top:0;
     left:0;
-}
-
-
-
-.scrolling-wrapper {
-    overflow-x: scroll;
-    overflow-y: hidden;
-    white-space: nowrap;
-
-    .card {
-        display: inline-block;
-    }
 }
 
 /*responsive styles*/
@@ -457,23 +365,9 @@ canvas {
         padding: 0.25rem 0.4rem;
         align-items: center;
         gap: 0.75rem;                     /* keep BORDEL and the menu apart */
-        font-size: clamp(12px, 3.7vw, 22px);   /* logo + 4 links must fit a 320px screen */
+        font-size: clamp(12px, 3.5vw, 22px);
     }
-    header nav { gap: 0.3rem; }
-    header nav a + a::before { margin-right: 0.5rem; }   /* the "|" glyph leans right; even it out */
-}
-
-/* narrow phones: BORDEL on the first line, the menu centred on the second,
-   so the items keep a readable size together with the "|" separators */
-@media screen and (max-width: 30rem) {
-    header {
-        flex-wrap: wrap;
-        justify-content: center;
-        row-gap: 0.15rem;
-        font-size: clamp(13px, 4.3vw, 18px);
-    }
-    header nav { gap: 0.25rem; }
-    header nav a + a::before { margin-right: 0.45rem; }
+    header nav.flex-gap-1 { gap: 0.35rem; }   /* beat the 1rem .flex-gap-1 utility */
     header a { white-space: nowrap; }      /* never break "JOIN US" onto two lines */
     h1 { font-size: 48px; padding-top: 4rem; }
     h2 { font-size: 22px; }
@@ -500,6 +394,26 @@ canvas {
     .slide { padding: 0; }
     .slider-arrow { display: none; }
 }
+
+/* narrow phones only: BORDEL on the first line, the menu centred on the second,
+   so the items keep a readable size together with the "|" separators */
+@media screen and (max-width: 30rem) {
+    header {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 0.15rem;
+        font-size: clamp(12.5px, 4.2vw, 18px);
+    }
+    header nav.flex-gap-1 {
+        width: 100%;                  /* menu always on its own second line */
+        justify-content: center;
+        gap: 0.45rem;
+    }
+}
+
+/* CONTACT menu link jumps to the contact paragraph; leave room so the
+   "Join us" heading right above it stays visible under the sticky menu */
+#contact { scroll-margin-top: 8rem; }
 
 /* "Follow us on Bluesky" link in the Join us section */
 .follow {                    /* text, then one link per line, centred */
