@@ -365,6 +365,7 @@ canvas {
         padding: 0.25rem 0.4rem;
         align-items: center;
         gap: 0.75rem;                     /* keep BORDEL and the menu apart */
+        flex-wrap: wrap;                  /* safety net: wrap instead of overflowing (e.g. big system fonts) */
         font-size: clamp(12px, 3.5vw, 22px);
     }
     header nav.flex-gap-1 { gap: 0.35rem; }   /* beat the 1rem .flex-gap-1 utility */

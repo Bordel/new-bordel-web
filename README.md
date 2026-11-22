@@ -37,7 +37,8 @@ Adding or removing a key file in `events/keys/` automatically updates the PGP KE
 ### Organizer keys (`events/keys/`)
 
 Every `<handle>.asc` file in [`events/keys/`](events/keys/) is the **public** PGP key of a Bordel organizer.
-Events signed by any of these keys are accepted by the "New event" issue form; the file name is shown as "signed by".
+Events signed by any of these keys are accepted by the "New event" issue form and published automatically
+(see `.github/workflows/add-event.yml`); the file name is shown as "signed by".
 
 - **Add an organizer:** they run `gpg --armor --export <their email> > <handle>.asc` and the file is committed to `events/keys/`.
 - **Remove an organizer:** delete their file. Their signatures stop being accepted right away.
