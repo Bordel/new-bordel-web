@@ -54,9 +54,8 @@
 
       <!-- View: keys -->
       <section id="view-keys" class="panel" hidden>
-        <h2 class="panel__title">VERIFY ANNOUNCEMENTS WITH THE SYSOP KEY</h2>
-        <pre class="fingerprint">XXXX XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX XXXX</pre>
-        <p><a href="../pubkey.asc">» DOWNLOAD PUBKEY.ASC</a></p>
+        <h2 class="panel__title">VERIFY ANNOUNCEMENTS WITH AN ORGANIZER KEY</h2>
+        <div id="org-keys" data-base="../keys/" data-arrow="»"></div>
         <div class="actions">
           <button type="button" data-key="b"><span class="br">[</span><span class="k">B</span><span class="br">]</span>ack</button>
         </div>
@@ -119,6 +118,8 @@ NO CARRIER</pre>
 
   <script src="../events.js"></script>
   <script src="../signed-events.js"></script>
+  <script src="../keys/keys.js"></script>
+  <script src="../pgp-keys.js"></script>
   <script src="bbs.js"></script>
 </body>
 </html>

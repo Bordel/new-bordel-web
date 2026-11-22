@@ -117,8 +117,12 @@
   });
 
   /* ===== 5. State ===== */
-  const todayKey = keyOf(new Date());
-  const [ty, tm, td] = splitKey(todayKey);
+  // `let`: updated by tick() when the date changes while the page stays open
+  let todayKey = keyOf(new Date());
+  let [ty, tm, td] = splitKey(todayKey);
+  const endedCount = () => { const now = Date.now(); return occurrences.filter((o) => o.end.getTime() < now).length; };
+  let ended = endedCount();
+  let lastMinute = -1;
   const state = { y: ty, m: tm, selected: todayKey, view: 'day' };
 
   /* ===== 6. Rendering ===== */
@@ -281,10 +285,17 @@
   /* ===== 8. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const icsText = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
-  function fold(line) {
+  const utf8 = new TextEncoder();
+  function fold(line) {                 // .ics lines: max 75 bytes (UTF-8), never split a character
     const out = [];
-    while (line.length > 73) { out.push(line.slice(0, 73)); line = ' ' + line.slice(73); }
-    out.push(line);
+    let cur = '', bytes = 0;
+    for (const ch of line) {            // for...of walks whole code points, so emoji stay intact
+      const b = utf8.encode(ch).length;
+      if (bytes + b > 75) { out.push(cur); cur = ' '; bytes = 1; }
+      cur += ch;
+      bytes += b;
+    }
+    out.push(cur);
     return out.join('\r\n');
   }
   function buildIcs(events) {
@@ -457,6 +468,20 @@
     const z = zoned(now);
     el.date.textContent = fmtHead.format(now).replace(',', '');
     el.clock.textContent = pad(z.h) + ':' + pad(z.min) + '/' + pad(z.s);
+    if (z.min === lastMinute) return;   // the checks below only need to run once a minute
+    lastMinute = z.min;                 // (not "when seconds == 0": background tabs may skip that tick)
+    const k = keyOf(now);
+    if (k !== todayKey) {               // midnight passed: move the TODAY marker
+      todayKey = k;
+      [ty, tm, td] = splitKey(k);
+      el.legendToday.textContent = '[' + td + ']';
+      renderGrid();
+      renderDayPanel();
+      ended = endedCount();
+    } else if (endedCount() !== ended) { // an event just ended: refresh NEXT UP
+      ended = endedCount();
+      renderDayPanel();
+    }
   }
   tick();
   setInterval(tick, 1000);

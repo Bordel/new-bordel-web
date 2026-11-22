@@ -77,10 +77,8 @@
             <h2 class="band--sub">PGP KEYS</h2>
             <button type="button" class="close" data-key="back" aria-label="Close PGP keys">✕ CLOSE</button>
           </div>
-          <p>VERIFY ANNOUNCEMENTS WITH THE SYSOP KEY:</p>
-          <pre class="fingerprint">XXXX XXXX XXXX XXXX XXXX
-XXXX XXXX XXXX XXXX XXXX</pre>
-          <p><a href="pubkey.asc">► DOWNLOAD PUBKEY.ASC</a></p>
+          <p>VERIFY ANNOUNCEMENTS WITH AN ORGANIZER KEY:</p>
+          <div id="org-keys" data-base="keys/" data-arrow="►"></div>
           <button type="button" class="link" data-key="back">◄ BACK TO CALENDAR (ESC)</button>
         </section>
 
@@ -135,6 +133,8 @@ XXXX XXXX XXXX XXXX XXXX</pre>
 
   <script src="events.js"></script>
   <script src="signed-events.js"></script>
+  <script src="keys/keys.js"></script>
+  <script src="pgp-keys.js"></script>
   <script src="calendar.js"></script>
 </body>
 </html>

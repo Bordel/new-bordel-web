@@ -137,6 +137,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .facts dd { margin: 0; color: var(--byellow); }
 
 .fingerprint { margin: 0; font: inherit; color: var(--bgreen); white-space: pre-wrap; }
+.org-keys__handle { margin: .8em 0 0; color: var(--white); }
 
 /* ===== Menu + buttons ===== */
 .menu, .actions { display: flex; flex-wrap: wrap; gap: .3em 1.4em; }

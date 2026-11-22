@@ -176,6 +176,7 @@ button:focus-visible { outline: 2px solid var(--y); outline-offset: 1px; }
 .facts dt { color: var(--y); }
 .facts dd { margin: 0; }
 .fingerprint { margin: 0; padding: 0 .6em; font: inherit; color: var(--g); white-space: pre-wrap; }
+.org-keys__handle { margin: .6em 0 0; color: var(--w); }
 .panel .link { align-self: flex-start; padding: 0 .6em; color: var(--c); }
 
 /* ===== Hint + Fastext ===== */

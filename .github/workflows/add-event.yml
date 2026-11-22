@@ -10,9 +10,10 @@ permissions:
   contents: write
   issues: write
 
-# One event at a time, so two submissions never fight over the same file.
+# One run per issue (a newer edit replaces an older queued run of the SAME issue only).
+# Runs for different issues can overlap; the push loop below handles that.
 concurrency:
-  group: add-event
+  group: add-event-${{ github.event.issue.number }}
   cancel-in-progress: false
 
 jobs:
@@ -22,33 +23,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify signature and add event
+      - name: Verify signature, add event, push
         id: add
         env:
           # Passed through env (never inlined into the script) so issue text can't inject shell commands.
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: python3 .github/scripts/add_event.py
-
-      - name: Commit and push
-        if: steps.add.outputs.result == 'added'
-        env:
-          COMMIT_MSG: ${{ steps.add.outputs.commit_msg }}
+          BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add events/signed-events.json events/signed-events.js
-          git commit -m "$COMMIT_MSG"
-          git pull --rebase
-          git push
+          out="$RUNNER_TEMP/add-event.out"
+          result=error
+          # If another event was pushed in the meantime, start over from the newest branch state.
+          for attempt in 1 2 3 4 5; do
+            git fetch --quiet origin "$BRANCH"
+            git reset --quiet --hard "origin/$BRANCH"
+            : > "$out"
+            GITHUB_OUTPUT="$out" python3 .github/scripts/add_event.py || true
+            result=$(sed -n 's/^result=//p' "$out" | tail -n 1)
+            [ "$result" = "added" ] || break
+            git add events/signed-events.json events/signed-events.js events/used-signatures.txt
+            git commit --quiet -m "$(sed -n 's/^commit_msg=//p' "$out" | tail -n 1)"
+            if git push --quiet origin "HEAD:$BRANCH"; then
+              result=pushed
+              break
+            fi
+            result=push_failed
+            sleep $((attempt * 3 + RANDOM % 5))
+          done
+          if [ "$result" = "push_failed" ]; then
+            printf '%s\n' '⚠️ **Event not added: the bot could not save it** (push to the repository failed).' \
+              '' 'A maintainer needs to check the workflow log (branch protection or Actions permissions).' > comment.md
+          fi
+          [ -n "$result" ] || result=error
+          [ -f comment.md ] || echo '⚠️ **Event not added: the bot hit an internal error.** A maintainer needs to check the workflow log.' > comment.md
+          echo "result=$result" >> "$GITHUB_OUTPUT"
 
       - name: Comment on the issue
         if: always() && steps.add.outputs.result != ''
         env:
           GH_TOKEN: ${{ github.token }}
           RESULT: ${{ steps.add.outputs.result }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body-file comment.md
-          if [ "$RESULT" = "added" ]; then
-            gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+          if [ "$RESULT" = "pushed" ]; then
+            gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed
           fi

@@ -1,0 +1,32 @@
+name: Update organizer key list
+
+# Rebuilds events/keys/keys.js (shown in the PGP KEYS section) whenever a key file changes.
+on:
+  push:
+    paths:
+      - 'events/keys/*.asc'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-keys
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild keys.js
+        run: python3 .github/scripts/add_event.py --build-keys
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add events/keys/keys.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Update organizer key list"
+          git pull --rebase
+          git push

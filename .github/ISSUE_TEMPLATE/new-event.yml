@@ -19,11 +19,13 @@ body:
            description: Build a small blinky kit.
            ```
 
-           - **Required:** `title`, `start` (`YYYY-MM-DD HH:MM`, Prague time), `type`
+           - **Required:** `title`, `start` (`YYYY-MM-DD HH:MM` with leading zeros, Prague time), `type`
            - `type` is one of: `workshop`, `talk`, `ctf`, `meetup`, `party`, `event`
            - Optional: `duration` (minutes, default 120), `location`, `bring`, `description`
+           - `description` must be the **last** line; it may continue over several lines
 
         2. Sign it: `gpg --clearsign event.txt` → this creates `event.txt.asc`
+           (sign shortly before submitting: signatures older than 30 days, or already used once, are rejected)
         3. Paste the **whole** content of `event.txt.asc` below (from `-----BEGIN PGP SIGNED MESSAGE-----` to `-----END PGP SIGNATURE-----`).
 
         A bot checks the signature against the keys in [`events/keys/`](../tree/master/events/keys). If it is valid, the event goes live within a few minutes and this issue is closed.

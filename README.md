@@ -21,12 +21,18 @@ Organizers whose public PGP key is in [`events/keys/`](events/keys/) can publish
    description: Build a small blinky kit.
    ```
 
-3. Sign it: `gpg --clearsign event.txt`
+   `start` needs leading zeros (`2026-01-05 09:00`), and `description` must be the last field
+   (it may continue over several lines).
+3. Sign it: `gpg --clearsign event.txt` (signatures older than 30 days, or already used once, are rejected)
 4. Open **Issues → New issue → New event (PGP-signed)** and paste the whole `event.txt.asc`.
 
 A GitHub Action (`.github/workflows/add-event.yml`) checks the signature. Valid events are added to
 `events/signed-events.json` / `.js` (with the signer's handle stored as `signedBy`), and the issue is closed. Invalid ones get a comment explaining why.
 To remove a bot-added event, delete it from `events/signed-events.json` **and** `events/signed-events.js`.
+The used signature stays in `events/used-signatures.txt`, so nobody can re-publish it by copying the old issue.
+
+Adding or removing a key file in `events/keys/` automatically updates the PGP KEYS section on the site
+(workflow `update-keys.yml` regenerates `events/keys/keys.js`).
 
 ### Option B: edit the file directly
 

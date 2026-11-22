@@ -102,9 +102,17 @@
   });
   all.sort((a, b) => a.start - b.start);
 
-  const now = Date.now();
-  const upcoming = all.filter((e) => e.end.getTime() >= now);
-  const archive = all.filter((e) => e.end.getTime() < now).reverse(); // newest first
+  // Split into upcoming / archive. Re-run as time passes, so a tab left open stays correct.
+  let upcoming = [], archive = [];
+  function splitByNow() {
+    const now = Date.now();
+    const next = all.filter((e) => e.end.getTime() >= now);
+    const changed = next.length !== upcoming.length;
+    upcoming = next;
+    archive = all.filter((e) => e.end.getTime() < now).reverse(); // newest first
+    return changed;
+  }
+  splitByNow();
 
   const state = {
     view: 'list',
@@ -179,6 +187,7 @@
   }
 
   function setList(name) {
+    splitByNow();
     state.listName = name;
     state.list = name === 'archive' ? archive : upcoming;
     state.index = 0;
@@ -213,10 +222,17 @@
   /* ===== 6. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); // 20261121T180000Z
   const icsText = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
-  function fold(line) {                 // .ics lines must be max ~75 chars
+  const utf8 = new TextEncoder();
+  function fold(line) {                 // .ics lines: max 75 bytes (UTF-8), never split a character
     const out = [];
-    while (line.length > 73) { out.push(line.slice(0, 73)); line = ' ' + line.slice(73); }
-    out.push(line);
+    let cur = '', bytes = 0;
+    for (const ch of line) {            // for...of walks whole code points, so emoji stay intact
+      const b = utf8.encode(ch).length;
+      if (bytes + b > 75) { out.push(cur); cur = ' '; bytes = 1; }
+      cur += ch;
+      bytes += b;
+    }
+    out.push(cur);
     return out.join('\r\n');
   }
 
@@ -261,6 +277,7 @@
     b: back,
     q: hangUp,
     s: () => {
+      splitByNow();
       if (!upcoming.length) return setStatus('NOTHING TO DOWNLOAD.');
       download('events.ics', buildIcs(upcoming));
       setStatus('DOWNLOADING EVENTS.ICS ...');
@@ -329,6 +346,14 @@
     setList('upcoming');
   }
   el.carrier.addEventListener('click', redial);
+
+  // Once a minute: move events that just ended from upcoming to archive (only redraw the list view,
+  // so an open event detail keeps pointing at the right event).
+  setInterval(() => {
+    if (!splitByNow() || state.view !== 'list') return;
+    state.list = state.listName === 'archive' ? archive : upcoming;
+    renderList();
+  }, 60000);
 
   /* ===== 9. Dial-up intro ===== */
   let bootTimer;
