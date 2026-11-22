@@ -154,10 +154,10 @@ button:focus-visible { outline: 2px solid var(--y); outline-offset: 1px; }
 .ev { display: flex; flex-direction: column; gap: .15em; padding: .2em .6em .5em; }
 .ev + .ev { border-top: 2px solid var(--b); padding-top: .5em; }
 .ev__time { color: var(--c); }
-.ev__title { margin: 0; font-weight: inherit; font-size: 1.2em; line-height: 1.1; color: var(--w); }
-.ev__where { color: var(--w); }
+.ev__title { margin: 0; font-weight: inherit; font-size: 1.2em; line-height: 1.1; color: var(--y); }   /* headline: yellow */
+.ev__where { color: var(--c); }   /* place: cyan */
 .ev__bring { color: var(--y); }
-.ev__desc { color: var(--w); }
+.ev__desc { margin: .35em 0 0; color: var(--w); line-height: 1.5; }   /* body: white, airy */
 .ev__ics { align-self: flex-start; margin-top: .2em; color: var(--g); }
 .ev__ics:hover { text-decoration: underline; }
 
