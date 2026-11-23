@@ -4,7 +4,7 @@
  *
  *   id          unique, no spaces
  *   title       event name
- *   start       "YYYY-MM-DD HH:MM" in your local time (time zone is set in bbs.js)
+ *   start       "YYYY-MM-DD HH:MM" in your local time (time zone: CONFIG.timeZone in both calendar.js and list/bbs.js — keep them the same)
  *   durationMin optional, default 120
  *   type        workshop | talk | ctf | meetup | party | event   (sets the color)
  *   location    optional
@@ -13,7 +13,8 @@
  *   links       optional: { 'phrase from the description': 'https://...' } makes that phrase a link
  *
  * Multi-day events: just set a long durationMin, e.g. 4 days = 4 * 24 * 60.
- * The event is then shown on every day it covers.
+ * The event is then shown on every day it covers. Longest: 2 weeks (weekly repeats: 7 days);
+ * anything longer is shortened to that.
  *
  * Repeating events:
  *   repeat: 'weekly', until: 'YYYY-MM-DD'      → every week on the same weekday

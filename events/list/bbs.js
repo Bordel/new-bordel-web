@@ -80,16 +80,45 @@
   };
 
   const all = [];
+  const str = (v) => (v == null ? '' : String(v));   // text fields as strings, whatever events.js holds
+  const MAX_DURATION_MIN = 14 * 24 * 60;   // same limit as the signed-event bot (add_event.py)
+  // ids written in the data; a made-up id never takes one of them, and a repeated id gets -2, -3 ...
+  const explicitIds = new Set((window.EVENTS || []).map((e) => (e && e.id != null ? String(e.id).trim() : '')).filter(Boolean));
+  const takenIds = new Set();
   (window.EVENTS || []).forEach((src) => {
     const start = parseStart(src.start);
     if (!start) { console.warn('[bbs] Bad start date, skipped:', src); return; }
-    let mins = src.durationMin == null ? CONFIG.defaultDurationMin : src.durationMin;
+    const raw = src.durationMin;
+    let mins = raw == null || raw === '' ? CONFIG.defaultDurationMin
+             : typeof raw === 'string' && /^\d+$/.test(raw.trim()) ? Number(raw)   // '240' is fine
+             : raw;                                                            // true, '0x78', [90] are not
     if (typeof mins !== 'number' || !Number.isFinite(mins) || mins <= 0) {
       console.warn('[bbs] Bad durationMin (must be a number of minutes), using the default:', src);
       mins = CONFIG.defaultDurationMin;
     }
+    // too long: shortened, not dropped. Weekly events stop before the next week starts.
+    const maxMins = src.repeat === 'weekly' ? 7 * 24 * 60 : MAX_DURATION_MIN;
+    if (mins > maxMins) {
+      console.warn('[bbs] durationMin too long, shortened to ' + maxMins + ' minutes:', src);
+      mins = maxMins;
+    }
     const dur = mins * 60000;
-    const add = (s, uid) => all.push(Object.assign({}, src, { id: uid, start: s, end: new Date(s.getTime() + dur) }));
+    // every event needs a text id (file names, .ics UID, the ADD button); make one if it is missing
+    const ownId = src.id == null ? '' : String(src.id).trim();
+    let base = ownId;
+    if (!base) {
+      // title + local date, made the same way as add_event.py makes ids
+      const z = zoned(start);
+      base = (String(src.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+               .slice(0, 40).replace(/-+$/, '') || 'event') + '-' + z.y + pad(z.m) + pad(z.d);
+    }
+    const free = (u) => !takenIds.has(u) && (u === ownId || !explicitIds.has(u));
+    let id = base;
+    for (let n = 2; !free(id); n++) id = base + '-' + n;
+    takenIds.add(id);
+    if (!ownId) console.warn('[bbs] Event without an id, using "' + id + '":', src);
+    else if (id !== ownId) console.warn('[bbs] Id "' + ownId + '" is used twice, this one becomes "' + id + '":', src);
+    const add = (s, uid) => all.push(Object.assign({}, src, { id: uid, title: str(src.title), type: str(src.type), location: str(src.location), bring: str(src.bring), start: s, end: new Date(s.getTime() + dur) }));
 
     if (src.repeat === 'weekly') {
       const z = zoned(start);
@@ -99,10 +128,10 @@
       for (let k = first; k <= until; k = addDays(k, 7)) {
         if (except.includes(k)) continue;
         const [y, m, d] = k.split('-').map(Number);
-        add(fromWallClock(y, m, d, z.h, z.min), src.id + '-' + k);
+        add(fromWallClock(y, m, d, z.h, z.min), id + '-' + k);
       }
     } else {
-      add(start, src.id);
+      add(start, id);
     }
   });
   all.sort((a, b) => a.start - b.start);
@@ -227,29 +256,15 @@
     statusTimer = setTimeout(() => { el.status.textContent = ''; }, 3000);
   }
 
-  /* Description text with optional links: ev.links = { 'phrase in the text': 'https://...' }.
-     Each phrase becomes a link (new tab); only http(s) URLs are used, text stays textContent. */
-  // valid links of an event: non-empty phrase -> http(s) URL string (shared by page and .ics)
-  const linkEntries = (links) => (links && typeof links === 'object')
-    ? Object.entries(links).filter(([t, u]) => typeof t === 'string' && t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
-  function withLinks(parent, text, links) {
-    const map = linkEntries(links);
-    parent.replaceChildren();
-    let rest = String(text || '');
-    while (rest) {
-      let best = null;
-      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i || (i === best.i && t.length > best.t.length))) best = { i, t, u }; }
-      if (!best) { parent.append(rest); break; }
-      if (best.i) parent.append(rest.slice(0, best.i));
-      const a = document.createElement('a');
-      a.href = best.u; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = best.t;
-      parent.append(a);
-      rest = rest.slice(best.i + best.t.length);
-    }
-    return parent;
-  }
-  // links also go into the .ics description, as "phrase: url" lines
-  const linkLines = (ev) => linkEntries(ev.links).map(([t, u]) => t + ': ' + u);
+  // from event-links.js (shared with the other view). If that file failed to load (blocked, or an
+  // old cached page), descriptions just show as plain text instead of breaking the whole page.
+  if (!window.BordelLinks) console.warn('[bbs] event-links.js did not load: descriptions are shown without links (.ics exports still list them).');
+  const { withLinks, linkLines } = window.BordelLinks || {
+    withLinks: (parent, text) => { parent.replaceChildren(String(text || '')); return parent; },
+    // .ics links don't need the shared file: same rules (http(s) URLs only), written out here
+    linkLines: (ev) => (ev.links && typeof ev.links === 'object' ? Object.entries(ev.links) : [])
+      .filter(([t, u]) => t && typeof u === 'string' && /^https?:\/\//i.test(u)).map(([t, u]) => t + ': ' + u)
+  };
 
   /* ===== 6. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); // 20261121T180000Z

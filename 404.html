@@ -151,7 +151,12 @@ Program terminated with signal SIGSEGV, Segmentation fault.
   // missing page like /oldpage/ on a user site never becomes the "root".
   if (/\.github\.io$/.test(location.hostname)) {
     const first = location.pathname.split('/')[1];
-    if (first) {                       // the probe below decides; '/404.html/404.html' simply fails
+    // a single missing file at the site root (/favicon.ico, /logo.png) is never a repo folder:
+    // skip the probe there. Folders, also with dots (/new.bordel, /new.bordel/...), are still checked.
+    const segments = location.pathname.split('/').filter(Boolean);
+    const rootFile = segments.length === 1 && !location.pathname.endsWith('/')
+      && /\.(ico|png|jpe?g|gif|webp|svg|txt|xml|json|js|css|html?|webmanifest|map|woff2?)$/i.test(segments[0]);
+    if (first && !rootFile) {
       fetch('/' + first + '/404.html', { method: 'HEAD' })
         .then((r) => {
           if (!r.ok) return;

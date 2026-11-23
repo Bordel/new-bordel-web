@@ -87,15 +87,43 @@
 
   /* ===== 4. Load events (and expand weekly repeats) ===== */
   const occurrences = [];
+  const MAX_DURATION_MIN = 14 * 24 * 60;   // same limit as the signed-event bot (add_event.py)
+  // ids written in the data; a made-up id never takes one of them, and a repeated id gets -2, -3 ...
+  const explicitIds = new Set((window.EVENTS || []).map((e) => (e && e.id != null ? String(e.id).trim() : '')).filter(Boolean));
+  const takenIds = new Set();
   (window.EVENTS || []).forEach((src) => {
     const start = parseStart(src.start);
     if (!start) { console.warn('[calendar] Bad start date, skipped:', src); return; }
-    let mins = src.durationMin == null ? CONFIG.defaultDurationMin : src.durationMin;
+    const raw = src.durationMin;
+    let mins = raw == null || raw === '' ? CONFIG.defaultDurationMin
+             : typeof raw === 'string' && /^\d+$/.test(raw.trim()) ? Number(raw)   // '240' is fine
+             : raw;                                                            // true, '0x78', [90] are not
     if (typeof mins !== 'number' || !Number.isFinite(mins) || mins <= 0) {
       console.warn('[calendar] Bad durationMin (must be a number of minutes), using the default:', src);
       mins = CONFIG.defaultDurationMin;
     }
+    // too long: shortened, not dropped. Weekly events stop before the next week starts.
+    const maxMins = src.repeat === 'weekly' ? 7 * 24 * 60 : MAX_DURATION_MIN;
+    if (mins > maxMins) {
+      console.warn('[calendar] durationMin too long, shortened to ' + maxMins + ' minutes:', src);
+      mins = maxMins;
+    }
     const dur = mins * 60000;
+    // every event needs a text id (file names, .ics UID, the ADD button); make one if it is missing
+    const ownId = src.id == null ? '' : String(src.id).trim();
+    let base = ownId;
+    if (!base) {
+      // title + local date, made the same way as add_event.py makes ids
+      const z = zoned(start);
+      base = (String(src.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+               .slice(0, 40).replace(/-+$/, '') || 'event') + '-' + z.y + pad(z.m) + pad(z.d);
+    }
+    const free = (u) => !takenIds.has(u) && (u === ownId || !explicitIds.has(u));
+    let id = base;
+    for (let n = 2; !free(id); n++) id = base + '-' + n;
+    takenIds.add(id);
+    if (!ownId) console.warn('[calendar] Event without an id, using "' + id + '":', src);
+    else if (id !== ownId) console.warn('[calendar] Id "' + ownId + '" is used twice, this one becomes "' + id + '":', src);
     const add = (s, uid) => occurrences.push(Object.assign({}, src, {
       uid, start: s, end: new Date(s.getTime() + dur), dayKey: keyOf(s), type: typeKey(src.type)
     }));
@@ -107,10 +135,10 @@
       for (let k = first; k <= until; k = addDays(k, 7)) {
         if (except.includes(k)) continue;
         const [y, m, d] = splitKey(k);
-        add(fromWallClock(y, m, d, z.h, z.min), src.id + '-' + k);
+        add(fromWallClock(y, m, d, z.h, z.min), id + '-' + k);
       }
     } else {
-      add(start, src.id);
+      add(start, id);
     }
   });
   occurrences.sort((a, b) => a.start - b.start);
@@ -222,7 +250,11 @@
       meta.append(node('span', 'tag type--' + ev.type, up(ev.type)));
       if (ev.location) meta.append(document.createTextNode(' ' + up(ev.location)));
       art.append(meta);
-      if (ev.bring) art.append(node('p', 'ev__bring', 'BRING: ' + up(ev.bring)));
+      if (ev.bring) {
+        const b = node('p', 'ev__bring');
+        b.append(node('span', 'ev__bring-label', 'BRING'), document.createTextNode(' ' + up(ev.bring)));
+        art.append(b);
+      }
       if (ev.description) art.append(withLinks(node('p', 'ev__desc'), ev.description, ev.links));
       if (ev.end.getTime() >= Date.now()) {
         const b = node('button', 'ev__ics', '► ADD TO MY CALENDAR');
@@ -294,29 +326,15 @@
     statusTimer = setTimeout(() => { el.status.textContent = ''; }, 3000);
   }
 
-  /* Description text with optional links: ev.links = { 'phrase in the text': 'https://...' }.
-     Each phrase becomes a link (new tab); only http(s) URLs are used, text stays textContent. */
-  // valid links of an event: non-empty phrase -> http(s) URL string (shared by page and .ics)
-  const linkEntries = (links) => (links && typeof links === 'object')
-    ? Object.entries(links).filter(([t, u]) => typeof t === 'string' && t && typeof u === 'string' && /^https?:\/\//i.test(u)) : [];
-  function withLinks(parent, text, links) {
-    const map = linkEntries(links);
-    parent.replaceChildren();
-    let rest = String(text || '');
-    while (rest) {
-      let best = null;
-      for (const [t, u] of map) { const i = rest.indexOf(t); if (i !== -1 && (!best || i < best.i || (i === best.i && t.length > best.t.length))) best = { i, t, u }; }
-      if (!best) { parent.append(rest); break; }
-      if (best.i) parent.append(rest.slice(0, best.i));
-      const a = document.createElement('a');
-      a.href = best.u; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = best.t;
-      parent.append(a);
-      rest = rest.slice(best.i + best.t.length);
-    }
-    return parent;
-  }
-  // links also go into the .ics description, as "phrase: url" lines
-  const linkLines = (ev) => linkEntries(ev.links).map(([t, u]) => t + ': ' + u);
+  // from event-links.js (shared with the other view). If that file failed to load (blocked, or an
+  // old cached page), descriptions just show as plain text instead of breaking the whole page.
+  if (!window.BordelLinks) console.warn('[calendar] event-links.js did not load: descriptions are shown without links (.ics exports still list them).');
+  const { withLinks, linkLines } = window.BordelLinks || {
+    withLinks: (parent, text) => { parent.replaceChildren(String(text || '')); return parent; },
+    // .ics links don't need the shared file: same rules (http(s) URLs only), written out here
+    linkLines: (ev) => (ev.links && typeof ev.links === 'object' ? Object.entries(ev.links) : [])
+      .filter(([t, u]) => t && typeof u === 'string' && /^https?:\/\//i.test(u)).map(([t, u]) => t + ': ' + u)
+  };
 
   /* ===== 8. Calendar (.ics) export ===== */
   const icsDate = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
@@ -529,6 +547,7 @@
 
   // Open a shared link like page.html#2026-11-21 (or #2026-11)
   const hash = /^#(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(location.hash);
-  const startKey = hash ? makeKey(+hash[1], +hash[2], hash[3] ? +hash[3] : 1) : todayKey;
-  selectDay(!isNaN(keyToUTC(startKey)) ? startKey : todayKey, false);
+  const hy = hash && +hash[1], hm = hash && +hash[2], hd = hash && (hash[3] ? +hash[3] : 1);
+  const validHash = hash && hy >= 1970 && hy <= 9999 && hm >= 1 && hm <= 12 && hd >= 1 && hd <= daysInMonth(hy, hm);   // not #2026-13, #2026-02-30 or #0005-03
+  selectDay(validHash ? makeKey(hy, hm, hd) : todayKey, false);
 })();

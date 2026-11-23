@@ -21,7 +21,7 @@ body:
 
            - **Required:** `title`, `start` (`YYYY-MM-DD HH:MM` with leading zeros, Prague time), `type`
            - `type` is one of: `workshop`, `talk`, `ctf`, `meetup`, `party`, `event`
-           - Optional: `duration` (minutes, default 120), `location`, `bring`, `description`
+           - Optional: `duration` (minutes, default 120; multi-day events up to 2 weeks, e.g. 4 days = `5760`), `location`, `bring`, `description`
            - `description` must be the **last** line; it may continue over several lines
 
         2. Sign it: `gpg --clearsign event.txt` → this creates `event.txt.asc`

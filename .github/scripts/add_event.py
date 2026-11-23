@@ -38,6 +38,7 @@ COMMENT = os.path.join(ROOT, 'comment.md')
 TYPES = {'workshop', 'talk', 'ctf', 'meetup', 'party', 'event'}
 FIELDS = {'title', 'start', 'duration', 'type', 'location', 'bring', 'description'}
 MAX_SIG_AGE_DAYS = 30
+MAX_DURATION_MIN = 14 * 24 * 60     # multi-day events (e.g. a 4-day congress) are fine, up to two weeks
 START_RE = re.compile(r'^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$')
 MAX_LEN = {'title': 100, 'location': 120, 'bring': 200, 'description': 1000}
 BAD_STATUS = {'BADSIG', 'ERRSIG', 'EXPSIG', 'EXPKEYSIG', 'REVKEYSIG', 'NO_PUBKEY'}
@@ -112,7 +113,10 @@ def verify(home, block, keys):
         raise Reject(f'The signature is older than {MAX_SIG_AGE_DAYS} days. Please sign the event again.')
     if age < -datetime.timedelta(days=1):
         raise Reject('The signature is dated in the future. Check the clock on the computer that signed it.')
-    text = res.stdout.decode('utf-8')
+    try:
+        text = res.stdout.decode('utf-8')
+    except UnicodeDecodeError:
+        raise Reject('The event text must be UTF-8. Save `event.txt` as UTF-8 and sign it again.')
     sig_id = hashlib.sha256(f'{primary}\n{validsig[0][4]}\n{text}'.encode('utf-8')).hexdigest()
     return text, keys[primary], sig_id
 
@@ -148,8 +152,10 @@ def parse(text):
     if ev['type'] not in TYPES:
         raise Reject('`type` must be one of: ' + ', '.join(sorted(TYPES)) + '.')
     if 'duration' in ev:
-        if not ev['duration'].isdigit() or not 15 <= int(ev['duration']) <= 24 * 60:
-            raise Reject('`duration` must be a number of minutes between 15 and 1440.')
+        # 1-6 ASCII digits only: isdigit() also accepts '²', and int() refuses strings of 4300+ digits
+        if not re.fullmatch(r'[0-9]{1,6}', ev['duration']) or not 15 <= int(ev['duration']) <= MAX_DURATION_MIN:
+            raise Reject(f'`duration` must be a number of minutes between 15 and {MAX_DURATION_MIN} '
+                         '(multi-day events: e.g. 4 days = 5760).')
     for k, n in MAX_LEN.items():
         if len(ev.get(k, '')) > n:
             raise Reject(f'`{k}` is too long (max {n} characters).')
