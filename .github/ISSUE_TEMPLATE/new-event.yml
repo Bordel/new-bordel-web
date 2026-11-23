@@ -1,0 +1,63 @@
+name: New event
+description: Add an event to the Bordel calendar.
+title: "New event"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill in the fields below. A bot checks the event and comments on this issue.
+
+        - **Organizers** (GitHub accounts listed in [`events/organizers.txt`](../blob/master/events/organizers.txt)): the event goes live within a few minutes and this issue is closed.
+        - **Everyone else:** the event waits until a maintainer checks it and adds the `approved` label. If you edit the issue after that, it needs approval again.
+
+        Times are Prague time.
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      placeholder: Soldering for beginners
+    validations:
+      required: true
+  - type: input
+    id: start
+    attributes:
+      label: Start
+      description: "`YYYY-MM-DD HH:MM` with leading zeros, Prague time."
+      placeholder: "2026-12-12 17:00"
+    validations:
+      required: true
+  - type: input
+    id: duration
+    attributes:
+      label: Duration (minutes)
+      description: Optional, default 120. Multi-day events up to 2 weeks, e.g. 4 days = `5760`.
+      placeholder: "150"
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - workshop
+        - talk
+        - ctf
+        - meetup
+        - party
+        - event
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      placeholder: Bordel
+  - type: input
+    id: bring
+    attributes:
+      label: Bring
+      placeholder: Nothing, kits provided
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Max 1000 characters. Links are clickable on the site.
+      placeholder: Build a small blinky kit.

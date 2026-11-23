@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Events · Bordel BBS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="bbs.css">
+</head>
+<body>
+  <div class="bbs">
+    <!-- Top status bar -->
+    <header class="bar bar--top">
+      <span class="bar__left"><nav class="switch" aria-label="Choose view"><a href="../">▦ CALENDAR</a><a href="./" aria-current="page">≡ LIST</a></nav><span><a href="../../" class="bar__home">« BORDEL</a> · BBS NODE 1</span></span>
+      <span>14400 BAUD · ANSI · 80×25</span>
+    </header>
+
+    <main class="screen">
+      <!-- Banner -->
+      <div class="banner">
+        <h1 class="banner__title"><span class="deco" aria-hidden="true">░▒▓ </span><span id="view-title">EVENTS</span><span class="deco" aria-hidden="true"> ▓▒░</span></h1>
+        <p class="banner__meta">SYSOP: YOUR_HANDLE<br>LAST UPDATE <span id="last-update"></span></p>
+      </div>
+
+      <!-- View: event list (upcoming or archive) -->
+      <section id="view-list" aria-label="Event list">
+        <div class="cols head" aria-hidden="true">
+          <span class="date">DATE</span>
+          <span class="time">TIME</span>
+          <span class="title">EVENT</span>
+          <span class="type">TYPE</span>
+        </div>
+        <ul id="rows" class="events"></ul>
+        <p id="empty" class="empty" hidden>NO EVENTS FOUND. CHECK BACK LATER.</p>
+      </section>
+
+      <!-- View: single event -->
+      <section id="view-detail" class="panel" hidden aria-live="polite">
+        <h2 id="d-title" class="panel__title"></h2>
+        <dl class="facts">
+          <div><dt>WHEN</dt><dd id="d-when"></dd></div>
+          <div><dt>WHERE</dt><dd id="d-where"></dd></div>
+          <div><dt>TYPE</dt><dd id="d-type"></dd></div>
+          <div id="d-bring-row"><dt>BRING</dt><dd id="d-bring"></dd></div>
+        </dl>
+        <p id="d-desc" class="panel__text"></p>
+        <div class="actions">
+          <button type="button" data-key="c"><span class="br">[</span><span class="k">C</span><span class="br">]</span>alendar (.ics)</button>
+          <button type="button" data-key="b"><span class="br">[</span><span class="k">B</span><span class="br">]</span>ack</button>
+        </div>
+      </section>
+
+      <!-- View: keys -->
+      <section id="view-keys" class="panel" hidden>
+        <h2 class="panel__title">VERIFY ANNOUNCEMENTS WITH AN ORGANIZER KEY</h2>
+        <div id="org-keys" data-base="../keys/" data-arrow="»"></div>
+        <div class="actions">
+          <button type="button" data-key="b"><span class="br">[</span><span class="k">B</span><span class="br">]</span>ack</button>
+        </div>
+      </section>
+
+      <!-- View: help -->
+      <section id="view-help" class="panel" hidden>
+        <h2 class="panel__title">KEYBOARD COMMANDS</h2>
+        <dl class="facts">
+          <div><dt>↑ ↓</dt><dd>MOVE SELECTION</dd></div>
+          <div><dt>ENTER</dt><dd>OPEN EVENT</dd></div>
+          <div><dt>V</dt><dd>SWITCH TO CALENDAR VIEW</dd></div>
+          <div><dt>E / A</dt><dd>UPCOMING / ARCHIVE</dd></div>
+          <div><dt>S</dt><dd>DOWNLOAD ALL UPCOMING AS .ICS</dd></div>
+          <div><dt>C</dt><dd>ADD OPEN EVENT TO CALENDAR</dd></div>
+          <div><dt>K</dt><dd>PGP KEYS</dd></div>
+          <div><dt>B / ESC</dt><dd>BACK</dd></div>
+          <div><dt>Q</dt><dd>HANG UP</dd></div>
+        </dl>
+        <div class="actions">
+          <button type="button" data-key="b"><span class="br">[</span><span class="k">B</span><span class="br">]</span>ack</button>
+        </div>
+      </section>
+
+      <!-- Main menu -->
+      <nav class="menu" aria-label="Main menu">
+        <button type="button" data-key="e"><span class="br">[</span><span class="k">E</span><span class="br">]</span>vents</button>
+        <button type="button" data-key="a"><span class="br">[</span><span class="k">A</span><span class="br">]</span>rchive</button>
+        <button type="button" data-key="k"><span class="br">[</span><span class="k">K</span><span class="br">]</span>eys</button>
+        <button type="button" data-key="s"><span class="br">[</span><span class="k">S</span><span class="br">]</span>ubscribe .ics</button>
+        <button type="button" data-key="q"><span class="br">[</span><span class="k">Q</span><span class="br">]</span>uit</button>
+      </nav>
+
+      <p class="prompt">SELECT OPTION: <span class="cursor" aria-hidden="true"></span> <span id="status" role="status"></span></p>
+    </main>
+
+    <!-- Bottom status bar -->
+    <footer class="bar bar--bottom">
+      <button type="button" class="bar__help" data-key="h">F1 HELP</button>
+      <span class="bar__hint">↑↓ SELECT │ ENTER DETAILS</span>
+      <span>TIME LEFT: <span id="time-left">60:00</span></span>
+    </footer>
+  </div>
+
+  <!-- Modem "boot" screen, shown once per visit -->
+  <div id="boot" class="overlay" hidden>
+    <pre id="boot-text"></pre>
+    <p class="overlay__hint">PRESS ANY KEY TO SKIP</p>
+  </div>
+
+  <!-- Shown after [Q]uit or when the session timer runs out -->
+  <div id="carrier" class="overlay" hidden>
+    <pre>+++
+ATH0
+OK
+
+NO CARRIER</pre>
+    <p class="overlay__hint">PRESS ANY KEY TO REDIAL</p>
+  </div>
+
+  <script src="../events.js"></script>
+  <script src="../issue-events.js"></script>
+  <script src="../keys/keys.js"></script>
+  <script src="../pgp-keys.js"></script>
+  <script src="../event-links.js"></script>
+  <script src="bbs.js"></script>
+</body>
+</html>

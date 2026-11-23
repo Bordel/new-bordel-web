@@ -1,0 +1,104 @@
+name: Add event
+
+# Runs when someone opens or edits a "New event" issue, or when the `approved` label is added.
+# Organizers (GitHub logins in events/organizers.txt) are published right away; everyone else
+# waits until someone with write access adds the `approved` label. See .github/scripts/add_event.py.
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+# One run per issue (a newer edit replaces an older queued run of the SAME issue only).
+# Runs for different issues can overlap; the push loop below handles that.
+concurrency:
+  group: add-event-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  add-event:
+    if: >-
+      github.event.issue.state == 'open' &&
+      contains(github.event.issue.body, '### Title') &&
+      contains(github.event.issue.body, '### Start') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'approved')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Look up the permission of whoever added the label
+        id: perm
+        if: github.event.action == 'labeled'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SENDER: ${{ github.event.sender.login }}
+        run: |
+          # admin / write / read / none. Any error counts as "none" (fail closed).
+          p=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$SENDER/permission" --jq .permission 2>/dev/null) || p=none
+          echo "permission=${p:-none}" >> "$GITHUB_OUTPUT"
+
+      - name: Check event, add it, push
+        id: add
+        env:
+          # Passed through env (never inlined into the script) so issue text can't inject shell commands.
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ACTION: ${{ github.event.action }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          SENDER: ${{ github.event.sender.login }}
+          LABEL: ${{ github.event.label.name }}
+          SENDER_PERMISSION: ${{ steps.perm.outputs.permission || 'none' }}
+          HAS_APPROVED_LABEL: ${{ contains(github.event.issue.labels.*.name, 'approved') }}
+          BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          out="$RUNNER_TEMP/add-event.out"
+          result=error
+          # If another event was pushed in the meantime, start over from the newest branch state.
+          for attempt in 1 2 3 4 5; do
+            git fetch --quiet origin "$BRANCH"
+            git reset --quiet --hard "origin/$BRANCH"
+            : > "$out"
+            GITHUB_OUTPUT="$out" python3 .github/scripts/add_event.py || true
+            result=$(sed -n 's/^result=//p' "$out" | tail -n 1)
+            [ "$result" = "added" ] || break
+            git add events/issue-events.json events/issue-events.js
+            git commit --quiet -m "$(sed -n 's/^commit_msg=//p' "$out" | tail -n 1)"
+            if git push --quiet origin "HEAD:$BRANCH"; then
+              result=pushed
+              break
+            fi
+            result=push_failed
+            sleep $((attempt * 3 + RANDOM % 5))
+          done
+          if [ "$result" = "push_failed" ]; then
+            printf '%s\n' '⚠️ **Event not added: the bot could not save it** (push to the repository failed).' \
+              '' 'A maintainer needs to check the workflow log (branch protection or Actions permissions).' > comment.md
+          fi
+          [ -n "$result" ] || result=error
+          if [ "$result" = "error" ] && [ ! -f comment.md ]; then
+            echo '⚠️ **Event not added: the bot hit an internal error.** A maintainer needs to check the workflow log.' > comment.md
+          fi
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+          echo "remove_label=$(sed -n 's/^remove_label=//p' "$out" | tail -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on the issue
+        if: always() && steps.add.outputs.result != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ steps.add.outputs.result }}
+          REMOVE_LABEL: ${{ steps.add.outputs.remove_label }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          if [ "$REMOVE_LABEL" = "true" ]; then
+            gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --remove-label approved || true
+          fi
+          if [ -f comment.md ]; then
+            gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+          fi
+          if [ "$RESULT" = "pushed" ]; then
+            gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed
+          fi

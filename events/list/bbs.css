@@ -1,0 +1,216 @@
+/* ===== ANSI palette (the 16 classic DOS colors we use) ===== */
+:root {
+  --black:    #000000;
+  --blue:     #0000aa;
+  --cyan:     #00aaaa;
+  --gray:     #aaaaaa;
+  --dgray:    #555555;
+  --bcyan:    #55ffff;
+  --bmagenta: #ff55ff;
+  --byellow:  #ffff55;
+  --bgreen:   #55ff55;
+  --bred:     #ff5555;
+  --white:    #ffffff;
+
+  --font: 'VT323', ui-monospace, 'Courier New', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { margin: 0; background: var(--black); }
+
+body {
+  color: var(--gray);
+  font-family: var(--font);
+  font-size: clamp(18px, 2.1vw, 26px);
+  line-height: 1.25;
+  min-height: 100vh;
+}
+
+a { color: var(--byellow); text-decoration: none; }
+a:hover, a:focus-visible { background: var(--blue); color: var(--white); outline: none; }
+
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+/* ===== Layout ===== */
+.bbs {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* CRT scanlines over everything (purely decorative) */
+.bbs::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, .22) 2px 3px);
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .25em 1em;
+  padding: .25em 1.1em;
+}
+.bar--top    { background: var(--blue); color: var(--white); }
+.bar--bottom { background: var(--gray); color: var(--black); }
+.bar__help:hover, .bar__help:focus-visible { background: var(--black); color: var(--gray); outline: none; }
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .9em;
+  padding: 1.1em 1.8em;
+}
+
+/* ===== Banner ===== */
+.banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5em 1em;
+  padding: .6em 1.1em;
+  border: 6px double var(--bcyan);
+}
+.banner__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: 2.8em;
+  line-height: 1;
+  letter-spacing: .08em;
+  color: var(--bmagenta);
+}
+.banner__meta { margin: 0; text-align: right; color: var(--bcyan); }
+
+/* ===== Event table ===== */
+.cols {
+  display: grid;
+  grid-template-columns: 7em 4em minmax(0, 1fr) 7em;
+  gap: .6em;
+  padding: .3em .6em;
+}
+.head { background: var(--gray); color: var(--black); }
+
+.events { list-style: none; margin: 0; padding: 0; }
+
+.row { width: 100%; text-align: left; }
+.row .date  { color: var(--byellow); white-space: pre; }
+.row .title { color: var(--white); }
+
+/* » marker in front of the selected row */
+.row .date::before            { content: "\00a0\00a0"; }
+.row.is-selected .date::before { content: "» "; }
+
+.row.is-selected,
+.row:hover,
+.row:focus-visible { background: var(--cyan); outline: none; }
+.row.is-selected *,
+.row:hover *,
+.row:focus-visible * { color: var(--black) !important; }
+
+/* Event type colors — add more types here */
+.type--workshop { color: var(--bcyan); }
+.type--meetup   { color: var(--bgreen); }
+.type--party    { color: var(--byellow); }
+.type--ctf      { color: var(--bred); }
+.type--talk     { color: var(--bmagenta); }
+.type--event    { color: var(--gray); }
+
+.empty { margin: .5em .6em; color: var(--byellow); }
+
+/* ===== Detail / keys / help panels ===== */
+.panel { display: flex; flex-direction: column; gap: .6em; }
+.panel__title { margin: 0; font-weight: 400; font-size: 1.6em; color: var(--white); }
+.panel__text  { margin: 0; max-width: 60ch; color: var(--gray); }
+
+.facts { margin: 0; display: flex; flex-direction: column; gap: .2em; }
+.facts > div { display: grid; grid-template-columns: 7em minmax(0, 1fr); gap: .6em; }
+.facts dt { color: var(--bcyan); }
+.facts dd { margin: 0; color: var(--byellow); }
+
+.fingerprint { margin: 0; font: inherit; color: var(--bgreen); white-space: pre-wrap; }
+.org-keys__handle { margin: .8em 0 0; color: var(--white); }
+
+/* ===== Menu + buttons ===== */
+.menu, .actions { display: flex; flex-wrap: wrap; gap: .3em 1.4em; }
+.menu { margin-top: auto; padding-top: .6em; border-top: 2px dashed var(--dgray); }
+
+.menu button, .actions button { color: var(--gray); padding: 0 .15em; }
+.menu .br, .actions .br { color: var(--white); }
+.menu .k,  .actions .k  { color: var(--byellow); }
+.menu button:hover, .menu button:focus-visible,
+.actions button:hover, .actions button:focus-visible { background: var(--blue); outline: none; }
+
+.prompt { margin: 0; color: var(--bgreen); }
+.cursor {
+  display: inline-block;
+  width: .55em;
+  height: 1em;
+  vertical-align: -.15em;
+  background: var(--bgreen);
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ===== Overlays (boot + no carrier) ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  padding: 2em;
+  background: var(--black);
+  color: var(--bgreen);
+  cursor: pointer;
+}
+.overlay pre { margin: 0; font: inherit; font-size: 1.3em; white-space: pre-wrap; }
+.overlay__hint { color: var(--dgray); }
+
+/* ===== Phones: two-line rows ===== */
+@media (max-width: 720px) {
+  .screen { padding: 1em; }
+  .banner__title { font-size: 2.2em; }
+  .banner__title .deco { display: none; }
+  .banner__meta { text-align: left; }
+  .cols {
+    grid-template-columns: 7.5em minmax(0, 1fr);
+    grid-template-areas: "date title" "time type";
+    row-gap: 0;
+  }
+  .date  { grid-area: date; }
+  .time  { grid-area: time; padding-left: 1.1em; }
+  .title { grid-area: title; }
+  .type  { grid-area: type; }
+  .head .time, .head .type { display: none; }
+  .bar__hint { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { animation: none; }
+}
+
+/* ===== List / calendar switch (top-left corner) ===== */
+.bar__left { display: flex; align-items: center; flex-wrap: wrap; gap: .25em 1em; }
+.switch { display: inline-flex; border: 1px solid var(--white); }
+.switch a { color: var(--white); padding: 0 .5em; }
+.switch a[aria-current="page"] { background: var(--white); color: var(--blue); }
+.switch a:not([aria-current]):hover,
+.switch a:not([aria-current]):focus-visible { background: var(--black); color: var(--bcyan); }
+.bar--top .bar__home { color: var(--white); }
+.bar--top .bar__home:hover,
+.bar--top .bar__home:focus-visible { background: var(--black); color: var(--bcyan); }
+
+/* ===== Teletext mosaic mouse pointer (yellow over clickable things) ===== */
+html { cursor: url('../cursors/tt-arrow.png') 1 1, auto; }
+a, button, [data-key], .overlay { cursor: url('../cursors/tt-arrow-link.png') 1 1, pointer; }
+
+/* links inside an event description (ev.links) */
+.panel__text a { color: var(--bcyan); text-decoration: underline; }
+.panel__text a:hover, .panel__text a:focus-visible { background: var(--bcyan); color: var(--black); text-decoration: none; }

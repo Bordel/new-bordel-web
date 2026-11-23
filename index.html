@@ -1,6 +1,9 @@
 <!DOCTYPE html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="styles.css">
 
     <title>Bordel Hackerspace</title>
@@ -12,13 +15,13 @@
     <meta property="og:url" content="https://new.bordel.wtf">
     <meta property="og:title" content="Bordel Hackerspace">
     <meta property="og:description" content="Bordel Hackerspace">
-    <meta property="og:image" content="https://new.bordel.wtf/bordel.png">
+    <meta property="og:image" content="https://new.bordel.wtf/assets/images/bordel.png">
 
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://new.bordel.wtf/">
     <meta property="twitter:title" content="Bordel ">
     <meta property="twitter:description" content="Bordel Hackerspace in Prague">
-    <meta property="twitter:image" content="https://https://new.bordel.wtf/bordel.png">
+    <meta property="twitter:image" content="https://new.bordel.wtf/assets/images/bordel.png">
     <style>
         @font-face {
             font-family: Beon;
@@ -46,7 +49,8 @@
         }
 
         li {
-            font-family: Helvetica;
+            font-family: Beon;
+            /*font-family: Helvetica;*/
         }
 
         body {
@@ -67,17 +71,20 @@
             text-decoration: none;
         }
     </style>
-    <!--    <script src="script.js"></script>-->
 </head>
 
 <body>
-    <!--<script src="script.js"></script>-->
 
     <header class="d-flex sticky-header">
         <a href="#home" class="font-color-green">BORDEL</a>
         <nav class="d-flex flex-gap-1">
             <a href="#about">ABOUT</a>
+            <span class="sep" aria-hidden="true">|</span>
+            <a href="events/">EVENTS</a>
+            <span class="sep" aria-hidden="true">|</span>
             <a href="#joinUs">JOIN US</a>
+            <span class="sep" aria-hidden="true">|</span>
+            <a href="#contact">CONTACT</a>
         </nav>
     </header>
 
@@ -85,9 +92,13 @@
     <canvas style="position: fixed" id="canvas2">Canvas is not supported in your browser.</canvas>
     <div id="home" class="container-body">
         <h1 class="text-center font-color-green">BORDEL</h1>
-        <h2 class="text-center">Transforming chaos into shared creations</h2>
+        <h2 class="text-center">Transforming <a href="https://hermetic.com/bey/taz1">chaos</a> into shared creations</h2>
+        <div class="text-center button-row">
+            <a href="https://paragraph.com/@bordel/decentralized-crowdloaning" class="button">Announcement Blog</a>
+            <a href="https://loan.bordel.wtf/" class="button">Crowdloan and Support Us</a>
+        </div>
 
-        <h3 id="about" class="padding-top-8 font-color-green">What We Are, Why We Exist, and Our Vision</h3>
+        <h3 id="about" class="padding-top-8 font-color-green">What is Bordel, Who are we, and Our Vision</h3>
         <p>
             In it's most basic form, you can see Bordel as a community sanctuary for hackers, makers, artists, and
             anyone who embraces (peaceful/productive) chaos, creativity or technology. </p>
@@ -121,74 +132,77 @@
             Bordel Hackerspace is designed to be versatile and welcoming, catering to a variety of activities,
             including:
         </p>
-        <ul class="ul-without-dots padding-top-2">
-            <li>
-                <div class="d-flex">
-                    <div class="width-50-percent li-div-text">
-                        <h4 class="font-color-green">Co-working Spaces</h4>
-                        <p>
-                            Comfortable areas with stable tables for everyone looking to get things done.
-                        </p>
-                    </div>
+        <div class="features">
+            <article class="feature">
+                <div class="feature-media">
+                    <img src="./assets/images/coworking.png" alt="Co-working area with chairs and shelves of labelled boxes under colourful projections" loading="lazy" />
+                </div>
+                <div class="feature-text">
+                    <span class="feature-num">01 · Desks</span>
+                    <h4 class="font-color-green">Co-working Spaces</h4>
+                    <p>Comfortable areas with stable tables for everyone looking to get things done.</p>
+                </div>
+            </article>
+            <article class="feature feature-reverse">
+                <div class="feature-media">
+                    <img src="./assets/images/make.png" alt="Open server rack with network switches and a screen showing BORDEL" loading="lazy" />
+                </div>
+                <div class="feature-text">
+                    <span class="feature-num">02 · Tools</span>
+                    <h4 class="font-color-green">Makerspace</h4>
+                    <p>Fully equipped with tools for various projects &#45; 3D printers, soldering stations, and more.</p>
+                </div>
+            </article>
+            <article class="feature">
+                <div class="feature-media">
+                    <img src="./assets/images/Screenshot from 2025-03-07 19-59-09 1.png" alt="A bottle of Club-Mate on an open computer case" loading="lazy" />
+                </div>
+                <div class="feature-text">
+                    <span class="feature-num">03 · Drinks</span>
+                    <h4 class="font-color-green">Community Bar</h4>
+                    <p>Offering Mate, Kombucha, and smoothies &#45; all donations help support the space.</p>
+                </div>
+            </article>
+            <article class="feature feature-reverse">
+                <div class="feature-media">
+                    <img src="./assets/images/audio.png" alt="DJ controller and audio gear" loading="lazy" />
+                </div>
+                <div class="feature-text">
+                    <span class="feature-num">04 · Sound</span>
+                    <h4 class="font-color-green">Audio Setup</h4>
+                    <p>Featuring speakers, a DJ controller, synths, and equipment for casual jams and events.</p>
+                </div>
+            </article>
+            <article class="feature">
+                <div class="feature-media">
+                    <img src="./assets/images/workshop.png" alt="3D printer, laptop and filament spools on a workshop table" loading="lazy" />
+                </div>
+                <div class="feature-text">
+                    <span class="feature-num">05 · Events</span>
+                    <h4 class="font-color-green">Workshops and Meetups</h4>
+                    <p>An open area for community gatherings and workshops, whether public or private.</p>
+                </div>
+            </article>
+            <article class="feature feature-reverse">
+                <div class="feature-media feature-media--art">
+                    <img class="art-wide" src="./assets/images/art-graffiti.png" alt="Green BORDEL graffiti tag on black" loading="lazy" />
+                    <img src="./assets/images/art-hacker.jpg" alt="Kid hacking on a toy laptop in front of green Matrix code" loading="lazy" />
+                    <img src="./assets/images/art-lines.jpg" alt="Green BORDEL .wtf HACKERSPACE lettering over pink perspective lines" loading="lazy" />
+                    <img src="./assets/images/art-graff.jpg" alt="Spray-painted BORDEL banner saying We just do things, hanging on a stair railing" loading="lazy" />
+                    <img class="art-logo" src="./assets/images/logo3_cerveny.png" alt="Red Bordel logo: a syringe with a power plug cable" loading="lazy" />
+                </div>
+                <div class="feature-text">
+                    <span class="feature-num">06 · Art</span>
+                    <h4 class="font-color-green">Art and Visuals</h4>
+                    <p>From graffiti tags to hacker posters: room to paint, print and glitch your own visuals.</p>
+                </div>
+            </article>
+        </div>
 
-                    <div class="width-50-percent d-flex justify-content-right">
-                        <img class="width-20-rem" src="./assets/images/coworking.png" alt="club-mate" />
-                    </div>
-                </div>
-            </li>
-
-            <li class="li-right">
-                <div class="d-flex">
-                    <div class="width-50-percent li-div-text text-right">
-                        <h4 class="font-color-green">Makerspace</h4>
-                        <p>Fully equipped with tools for various projects &#45; 3D printers, soldering stations, and
-                            more.</p>
-                    </div>
-                    <div class="d-flex justify-content-left">
-                        <img class="width-20-rem" src="./assets/images/make.png" alt="club-mate" />
-                    </div>
-                </div>
-            </li>
-            <li class="text-wrap">
-                <div class="d-flex">
-                    <div class="width-50-percent li-div-text">
-                        <h4 class="font-color-green">Community Bar</h4>
-                        <p>Offering Mate, Kombucha, and smoothies &#45; all donations help support the space.</p>
-                    </div>
-                    <div class="width-50-percent d-flex justify-content-right">
-                        <img class="width-20-rem" src="./assets/images/Screenshot from 2025-03-07 19-59-09 1.png"
-                            alt="club-mate" />
-                    </div>
-                </div>
-            </li>
-            <li class="li-right">
-                <div class="d-flex">
-                    <div class="width-50-percent li-div-text text-right">
-                        <h4 class="font-color-green">Audio Setup</h4>
-                        <p>Featuring speakers, a DJ controller, synths, and equipment for casual jams and events.</p>
-                    </div>
-                    <div class="d-flex justify-content-left">
-                        <img class="width-20-rem" src="./assets/images/audio.png" alt="club-mate" />
-                    </div>
-                </div>
-            </li>
-            <li class="text-wrap">
-                <div class="d-flex">
-                    <div class="width-50-percent li-div-text">
-                        <h4 class="font-color-green">Workshops and Meetups</h4>
-                        <p>An open area for community gatherings and workshops, whether public or private.</p>
-                    </div>
-                    <div class="width-50-percent d-flex justify-content-right">
-                        <img class="width-20-rem" src="./assets/images/workshop.png" alt="club-mate" />
-                    </div>
-                </div>
-
-            </li>
-            <li class="text-wrap padding-top-3">
-                <p>We operate on a do-ocracy principle, meaning that everyone&apos;s input is valued. We want to hear
-                    your ideas on how you&apos;d like to utilize this space.</p>
-            </li>
-        </ul>
+        <p class="callout">
+            We operate on a <span class="font-color-green">do-ocracy</span> principle, meaning that everyone&apos;s input is valued.
+            We want to hear your ideas on how you&apos;d like to utilize this space.
+        </p>
 
 
         <h3 class="text-center padding-top-8 font-color-green">A GLIMPSE AT OUR ACTIVITIES</h3>
@@ -198,97 +212,146 @@
             contributed to bunch of cool projects and organized a ton of events for art and education. We...
         </p>
 
-        <ul class="ul-without-dots padding-top-2">
-            <li>
-                <p> built <a href=https://proofof.cat>Catropy</a>, a cat toy device for extracting secure entropy from
-                    felines used to secure cryptography in KZG ceremony</p>
-            </li>
-            <li>
-                <p> created the very first Bitcoin Lightning NFC payments and pioneered the technology</p>
-            </li>
-            <li>
-                <p> created an art installation from upcycled hardware and cartridges
-            </li>
-            <li>
-                <p> built Bleskomat, first offline Bitcoin Lightning ATM using LNURL and helped to onboard hundreds of
-                    people
-                </p>
-            </li>
-            <li>
-                <p> hosted FOSS software for the community, providing a privacy respecting alternative to proprietary
-                    services
-                </p>
-            </li>
-            <li>
-                <p> hosted nodes and tools for various blockchains, including mixers
-                </p>
-            </li>
-            <li>
-                <p> organized music events Synapse, hosting local artists and DJs
-                </p>
-            </li>
-            <li>
-                <p> hosted a coordination for testing Ethereum switch to proof of stake
-                </p>
-            </li>
-            <li>
-                <p>
-                    created an <a
-                        href="https://play.workadventu.re/_/global/bordel.github.io/workadvanture-bordel/map.json">online
-                        2D hackerspace</a> to for events during covid and remotely
-                </p>
-            </li>
-            <li>
-                <p> organized workshops on 3D printing and creative prototyping
-                </p>
-            </li>
-            <li>
-                <p> workshops on biology and sustainability, growing mycelium in the space
-                </p>
-            </li>
-            <li>
-                <p> workshops on neopixel, art with programmable LED lights
-                </p>
-            </li>
-            <li>
-                <p> Security/privacy workshops, installing GrapheneOS, GNU/Linux
-                </p>
-            </li>
-            <li>
-                <p> workshop on hacking Playstation and liberating hardware
-                </p>
-            </li>
-            <li>
-                <p> organized non-conformist hackatons Hackatoshi's <a href=flyingcircuit.com>Flying Circuit</a>
-                </p>
-            </li>
-            <li>
-                <p> workshops on hacking self defense tools
-                </p>
-            </li>
-
-            <p class="padding-top-2">
-                And even more! Combining all of the above, Bordel space creates a unique atmosphere for creativity,
-                hacking and relax. We
-                welcome everybody from all kinds of communities to join us and use the space.
-            </p>
-
-            <h3 id="joinUs" class="text-center padding-top-8 font-color-green">Join us</h3>
-            <p class="text-center">
-                We are operating in private <a
-                    href="https://signal.group/#CjQKILd9jG3SmC5jEkCf0VbavrETuLixY7wxITmlkg8dWbdrEhD6qay9BKGWmjYLRFKFZjeB">signal
-                    group</a>. More info to come.
-            <p>
-
-            <div class="d-flex" style="justify-content: center">
-                <video controls width="250" class="text-center" style="margin: 2rem 0 2rem 0">
-                    <source src="./assets/videos/videBordelCat.mp4" type="video/mp4" />
-                    Download the
-                    <a href="./assets/videos/videBordelCat.mp4">MP4</a>
-                    video.
-                </video>
+        <div class="slider padding-top-2" id="activities-slider" aria-roledescription="carousel" aria-label="Our activities">
+            <div class="slider-track">
+                <div class="slide" aria-roledescription="slide" aria-label="1 of 18">
+                    <div class="slide-photo slide-photo--collage">
+                        <img class="collage-main" src="./assets/images/catropy2.jpeg" alt="Crocheted Catropy cat toy next to its circuit boards and battery" loading="lazy">
+                        <img src="./assets/images/catropy_pink.jpg" alt="Pink crocheted Catropy toy, front with button eyes and back with embroidered Ethereum logo" loading="lazy">
+                        <img src="./assets/images/device_back.jpg" alt="Back of the purple Catropy circuit board, Version 1 (2023/01) by octopusLab" loading="lazy">
+                    </div>
+                    <p>built <a href="https://proofof.cat">Catropy</a>, a cat toy device for extracting secure entropy from felines used to secure cryptography in KZG ceremony</p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="2 of 18">
+                    <div class="slide-photo"><img src="./assets/images/bleskomat.jpg" alt="Person inserting a coin into the Bleskomat Bitcoin Lightning ATM covered in stickers" loading="lazy"></div>
+                    <p>built Bleskomat, first offline Bitcoin Lightning ATM using LNURL and helped to onboard hundreds of people</p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="3 of 18">
+                    <div class="slide-photo"><img src="./assets/images/audio.png" alt="DJ controllers and mixer lit in blue at a Synapse music event" loading="lazy"></div>
+                    <p>organized music events Synapse, hosting local artists and DJs</p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="4 of 18">
+                    <div class="slide-photo slide-photo--fit"><img src="./assets/images/workadventure.png" alt="Map of the online 2D Bordel hackerspace in WorkAdventure" loading="lazy"></div>
+                    <p>created an <a href="https://play.workadventu.re/_/global/bordel.github.io/workadvanture-bordel/map.json">online 2D hackerspace</a> to for events during covid and remotely</p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="5 of 18">
+                    <div class="slide-photo"><img src="./assets/images/workshop.png" alt="3D printer, filament spools, laptop and electronics on a workshop table" loading="lazy"></div>
+                    <p>organized workshops on 3D printing and creative prototyping</p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="6 of 18">
+                    <div class="slide-photo slide-photo--fit"><img src="./assets/images/flyingcircuit.jpg" alt="Hackatoshi's Flying Circuit hackathon poster" loading="lazy"></div>
+                    <p>organized non-conformist hackatons Hackatoshi's <a href="https://flyingcircuit.com">Flying Circuit</a></p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="7 of 18">
+                    <div class="slide-photo"><img src="./assets/images/make.png" alt="Art installation in an old hardware rack with a screen showing BORDEL in green terminal text" loading="lazy"></div>
+                    <p>created an art installation from upcycled hardware and cartridges</p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="8 of 18">
+                    <div class="slide-photo slide-photo--trio">
+                        <img src="./assets/images/bordel-sun.jpg" alt="Artificial sun light panel glowing above a red neon BORDEL sign" loading="lazy">
+                        <img src="./assets/images/bordel-sun-9.jpg" alt="The artificial sun light box being built, taped together with blue tape" loading="lazy">
+                        <img src="./assets/images/bordel-sun-3.jpg" alt="Sun-like spot of light projected on a wall" loading="lazy">
+                    </div>
+                    <p>built an artificial sun at <a href="https://ethprague.com/">ETH Prague</a></p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="9 of 18">
+                    <div class="slide-photo slide-photo--fit"><img src="./assets/images/bordel-sitotisk.jpg" alt="Screen printing frame with a BORDEL stencil" loading="lazy"></div>
+                    <p>screen-printed BORDEL</p>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="10 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>created the very first Bitcoin Lightning NFC payments and pioneered the technology</p> -->
+                    <div class="slide-photo slide-photo--text"><p>created the very first Bitcoin Lightning NFC payments and pioneered the technology</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="11 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>hosted FOSS software for the community, providing a privacy respecting alternative to proprietary services</p> -->
+                    <div class="slide-photo slide-photo--text"><p>hosted FOSS software for the community, providing a privacy respecting alternative to proprietary services</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="12 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>hosted nodes and tools for various blockchains, including mixers</p> -->
+                    <div class="slide-photo slide-photo--text"><p>hosted nodes and tools for various blockchains, including mixers</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="13 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>hosted a coordination for testing Ethereum switch to proof of stake</p> -->
+                    <div class="slide-photo slide-photo--text"><p>hosted a coordination for testing Ethereum switch to proof of stake</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="14 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>workshops on biology and sustainability, growing mycelium in the space</p> -->
+                    <div class="slide-photo slide-photo--text"><p>workshops on biology and sustainability, growing mycelium in the space</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="15 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>workshops on neopixel, art with programmable LED lights</p> -->
+                    <div class="slide-photo slide-photo--text"><p>workshops on neopixel, art with programmable LED lights</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="16 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>Security/privacy workshops, installing GrapheneOS, GNU/Linux</p> -->
+                    <div class="slide-photo slide-photo--text"><p>Security/privacy workshops, installing GrapheneOS, GNU/Linux</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="17 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>workshop on hacking Playstation and liberating hardware</p> -->
+                    <div class="slide-photo slide-photo--text"><p>workshop on hacking Playstation and liberating hardware</p></div>
+                </div>
+                <div class="slide" aria-roledescription="slide" aria-label="18 of 18">
+                    <!-- no photo yet: to add one, replace this block with
+                         <div class="slide-photo"><img src="./assets/images/..." alt="..."></div>
+                         <p>workshops on hacking self defense tools</p> -->
+                    <div class="slide-photo slide-photo--text"><p>workshops on hacking self defense tools</p></div>
+                </div>
             </div>
-            <script src="script.js">
-            </script>
+            <button class="slider-arrow slider-prev" type="button" aria-label="Previous slide">&lt;</button>
+            <button class="slider-arrow slider-next" type="button" aria-label="Next slide">&gt;</button>
+            <div class="slider-dots"></div>
+        </div>
+
+        <p class="padding-top-2">
+            And even more! Combining all of the above, Bordel space creates a unique atmosphere for creativity,
+            hacking and relax. We
+            welcome everybody from all kinds of communities to join us and use the space.
+        </p>
+
+        <h3 id="joinUs" class="text-center padding-top-8 font-color-green">Join us</h3>
+        <p id="contact" class="text-center">
+            We are operating in private <a
+                href="https://signal.group/#CjQKILd9jG3SmC5jEkCf0VbavrETuLixY7wxITmlkg8dWbdrEhD6qay9BKGWmjYLRFKFZjeB">signal
+                group</a>. You can also reach us at <a href="mailto:info@bordel.wtf">info@bordel.wtf</a>
+        </p>
+
+        <p class="text-center follow">
+            Follow what we are up to
+            <a class="follow-link" href="https://bsky.app/profile/bordelwtf.bsky.social" target="_blank" rel="me noopener">
+                <svg class="follow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 3.6C7.9 5.6 10.8 9.7 12 12c1.2-2.3 4.1-6.4 6.8-8.4 2-1.4 5.2-2.6 5.2 1 0 .7-.4 6-.7 6.8-.9 3-4 3.8-6.7 3.3 4.8.8 6 3.5 3.4 6.2-5 5.1-7.2-1.3-7.8-2.9L12 17.4l-.2.6c-.6 1.6-2.8 8-7.8 2.9-2.6-2.7-1.4-5.4 3.4-6.2-2.7.5-5.8-.3-6.7-3.3C.4 10.6 0 5.3 0 4.6c0-3.6 3.2-2.4 5.2-1z"/></svg>
+                Bluesky @bordelwtf
+            </a>
+            <a class="follow-link" href="https://x.com/BordelWTF" target="_blank" rel="me noopener">
+                <svg class="follow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                X @BordelWTF
+            </a>
+        </p>
+
+        <div class="d-flex" style="justify-content: center">
+            <video controls width="250" class="text-center" style="margin: 2rem 0 2rem 0">
+                <source src="./assets/videos/videBordelCat.mp4" type="video/mp4" />
+                Download the
+                <a href="./assets/videos/videBordelCat.mp4">MP4</a>
+                video.
+            </video>
+        </div>
     </div>
+    <script src="script.js"></script>
 </body>
+</html>

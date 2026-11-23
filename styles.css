@@ -1,7 +1,27 @@
 * {margin: 0; padding: 0}
+/* mouse pointer = the red Bordel logo (syringe); the click point is the needle tip.
+   Links/buttons get a hover variant; the normal cursors are the fallback. */
+html { cursor: url('assets/cursors/logo-cursor.png') 2 2, auto; }
+.slider-track { cursor: url('assets/cursors/logo-cursor.png') 2 2, grab; }
+/* while dragging a slide: grabbing hand everywhere, also over links inside the slide */
+.slider-track.dragging, .slider-track.dragging * { cursor: grabbing; }
+/* over anything clickable: the hover version of the syringe */
+a, button { cursor: url('assets/cursors/logo-cursor-hover.png') 2 2, pointer; }
+
+/* menu jumps (#about, #joinUs, #contact): stop below the sticky header, not under it.
+   --header-h is the header's real height (set by script.js; also when it wraps to 2 lines). */
+[id] { scroll-margin-top: calc(var(--header-h, 3rem) + 1.5rem); }
 body {
     background-color: #111111;
-    color: white}
+    color: white;
+    /* thin black outline so text stays readable over the green matrix rain
+       (inherited; elements with their own neon glow keep it) */
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #000, -1px -1px 2px #000;
+}
+/* ...but not on text that already sits on its own box/background */
+a.button, button, header, .feature-text, .callout, .slide > p {
+    text-shadow: none;
+}
 .container-body { margin: 0 20rem 0 20rem }
 .font-color-green { color: #0f0 !important; }
 canvas {
@@ -25,73 +45,279 @@ h4 {
     font-size: 1.5rem;
 }
 p {
-    font-size: 15px
-}
-.font-size-20 {
-    font-size: 20px;
-}
-.font-size-5 {
-    font-size: 20px;
+    font-size: 17px
 }
 
-.padding-top-0-5 {padding-top: 0.5rem}
-.padding-top-1 {padding-top: 1rem}
-.padding-top-1-5 {padding-top: 1.5rem}
 .padding-top-2 {padding-top: 2rem}
-.padding-top-2-5 {padding-top: 2.5rem}
-.padding-top-3 {padding-top: 3rem}
-.padding-top-3-5 {padding-top: 3.5rem}
 
 .padding-top-8 {
     padding-top: 8rem;
 }
 
-.padding-left-0-5 {padding-left: 0.5rem}
-.padding-left-1 {padding-left: 1rem}
-.padding-left-1-5 {padding-left: 1.5rem}
-.padding-left-2 {padding-left: 2rem}
-.padding-left-2-5 {padding-left: 2.5rem}
-.padding-left-3 {padding-left: 3rem}
-.padding-left-3-5 {padding-left: 3.5rem}
-.padding-left-4 {padding-left: 4rem}
-.padding-left-4-5 {padding-left: 4.5rem}
-.padding-left-5 {padding-left: 5rem}
-.padding-left-5-5 {padding-left: 5.5rem}
-.padding-left-6 {padding-left: 6rem}
-.padding-left-6-5 {padding-left: 6.5rem}
-.padding-left-7 {padding-left: 7rem}
-.padding-left-7-5 {padding-left: 7.5rem}
-.padding-left-8 {padding-left: 8rem}
-
-.text-right {text-align: right}
-.text-right {text-align: right}
-.text-right {text-align: right}
-.li-right {direction: rtl;
-    /*text-align: right*/
+/* ---------- space for everyone ---------- */
+.features {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    padding-top: 3rem;
 }
-.text-right {text-align: right}
+
+.feature {
+    display: grid;
+    grid-template-columns: 4fr 5fr;      /* photo ~44%, text ~56% */
+    align-items: center;
+    gap: 2.5rem;
+}
+.feature-reverse { grid-template-columns: 5fr 4fr; }
+.feature-reverse .feature-media { order: 2; }
+
+/* cards: sharp corners, thin outline on black, monospace label, heading with a
+   terminal cursor. The outline lights up when the row is hovered. */
+.feature-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid rgba(0, 255, 0, 0.35);
+    transition: border-color 0.3s;
+}
+.feature-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+/* Art row: wide graffiti tag on top, four pictures below
+   (hacker 1:1 | lines 1.44:1 | banner 0.96:1 | logo, shown whole).
+   Columns follow the pictures' own shapes, so they are barely cropped. */
+.feature-media--art {
+    aspect-ratio: 2 / 1;
+    display: grid;
+    grid-template-columns: 1fr 1.44fr 0.96fr 0.6fr;
+    grid-template-rows: 24fr 25fr;
+    gap: 4px;
+    background-color: #000;
+}
+.feature-media--art img { min-width: 0; min-height: 0; }
+.feature-media--art .art-wide { grid-column: 1 / -1; }
+.feature-media--art .art-logo { object-fit: contain; padding: 0.6rem; box-sizing: border-box; }
+.feature:hover .feature-media { border-color: #0f0; }
+.feature:hover .feature-media img { transform: scale(1.04); }
+
+.feature-text {
+    padding: 1.6rem 1.9rem 1.7rem;
+    background-color: rgba(0, 0, 0, 0.88);
+    border: 1px solid rgba(0, 255, 0, 0.35);
+    transition: border-color 0.3s;
+}
+.feature:hover .feature-text { border-color: #0f0; }
+
+/* small label above the heading, e.g. "01 · DESKS" */
+.feature-num {
+    display: block;
+    font: 600 0.8rem/1 ui-monospace, 'DejaVu Sans Mono', 'Courier New', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #0f0;
+    opacity: 0.75;
+}
+.feature-text h4 {
+    margin: 0.75rem 0 0.6rem;
+    font-size: 1.6rem;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.35);
+}
+.feature-text h4::after {        /* terminal cursor; blinks while the row is hovered */
+    content: '_';
+    margin-left: 0.1em;
+}
+.feature:hover .feature-text h4::after { animation: cursor-blink 1s steps(1) infinite; }
+@keyframes cursor-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .feature:hover .feature-text h4::after { animation: none; }
+}
+.feature-text p {
+    margin: 0;
+    line-height: 1.65;
+    color: #d6d6d6;
+}
+
+.callout {
+    margin-top: 4rem;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    line-height: 1.6;
+    border: 1px solid rgba(0, 255, 0, 0.35);
+    background-color: rgba(0, 0, 0, 0.88);
+}
+
+/* ---------- activities slider ---------- */
+.slider {
+    position: relative;
+}
+
+.slider-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;          /* Firefox */
+}
+.slider-track::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
+.slider-track.animating {
+    scroll-snap-type: none;
+}
+.slider-track.dragging {
+    scroll-snap-type: none;
+    cursor: grabbing;
+    user-select: none;
+}
+
+.slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    box-sizing: border-box;
+    padding: 0 3.5rem;              /* room for the arrows */
+}
+
+.slide-photo {
+    aspect-ratio: 16 / 9;
+    max-width: 45rem;               /* ~720px: keep photos compact on wide screens */
+    max-height: 50vh;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(17, 17, 17, 0.85);
+    border: 2px dashed #00a400;
+    color: #00a400;
+    font-family: Beon;
+    overflow: hidden;
+}
+.slide-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;           /* don't let the browser drag the image */
+}
+
+/* a real photo gets a solid frame; the dashed one marks "Photo coming soon" */
+.slide-photo:has(img) { border-style: solid; }
+/* portrait images (map, poster): show the whole picture instead of cropping it */
+.slide-photo--fit img { object-fit: contain; }
+
+/* slides without a photo yet: the activity text fills the frame instead */
+.slide-photo--text { border-style: solid; }
+.slide .slide-photo--text p {
+    padding: 0 8%;
+    background: none;
+    color: #0f0;
+    font-size: clamp(1.6rem, 1rem + 2.2vw, 2.8rem);
+    line-height: 1.3;
+    text-align: center;
+    text-shadow: 0 0 6px rgba(0, 255, 0, 0.6), 0 0 18px rgba(0, 255, 0, 0.35);
+}
+
+/* three portrait (3:4) photos side by side */
+.slide-photo--trio {
+    aspect-ratio: 9 / 4;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+.slide-photo--trio img { min-width: 0; min-height: 0; }
+
+/* several photos in one slide: big one on the left, two stacked on the right.
+   Column/row sizes follow the photos' own shapes, so they are barely cropped. */
+.slide-photo--collage {
+    aspect-ratio: 2.1 / 1;
+    display: grid;
+    grid-template-columns: 1.75fr 1fr;
+    grid-template-rows: 38fr 62fr;
+    gap: 4px;
+    border-style: solid;
+}
+.slide-photo--collage img { min-width: 0; min-height: 0; }
+.slide-photo--collage .collage-main { grid-row: 1 / 3; }
+
+.slide p {
+    text-align: center;
+    padding: 1rem 0;
+    background-color: rgba(17, 17, 17, 0.85);
+}
+/* caption under the photo (direct child only, so the big text in .slide-photo--text slides keeps its own style) */
+.slide > p {
+    max-width: 45rem;                   /* same width as the photo above */
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 1rem 1.25rem;
+    color: #0f0;
+    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.5rem);
+    line-height: 1.45;
+}
+
+/* neon glowing < > arrows */
+.slider-arrow {
+    position: absolute;
+    top: 50%;            /* vertical middle of the slider */
+    transform: translateY(-50%);
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #0f0;
+    font-family: Beon;
+    font-size: 2.2rem;
+    line-height: 1;
+    text-shadow: 0 0 6px #0f0, 0 0 14px #0f0;
+    transition: text-shadow 0.15s;
+}
+.slider-arrow:hover,
+.slider-arrow:focus-visible {
+    text-shadow: 0 0 8px #0f0, 0 0 22px #0f0, 0 0 36px #0f0;
+    outline: none;
+}
+.slider-prev { left: 0; }
+.slider-next { right: 0; }
+
+.slider-dots {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+}
+.slider-dots button {
+    width: 0.75rem;
+    height: 0.75rem;
+    padding: 0;
+    border: 1px solid #0f0;
+    border-radius: 50%;
+    background: transparent;
+}
+.slider-dots button[aria-current="true"] { background: #0f0; }
+
+.button-row {
+    margin: 20px 0;
+}
+
+/* a.button:link/visited needed to beat the global red a:link rule */
+a.button,
+a.button:link,
+a.button:visited {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 0 10px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
 .text-center {text-align: center}
-.text-wrap {text-wrap: inherit}
-.margin-left-20 {margin-left: 20rem}
-.margin-left-10 {margin-left: 10rem}
 
-.ul-without-dots {
-    list-style-type: square;
-}
 li::marker {
     color: lime;
-}
-
-.width-20-rem {
-    width: 30rem;
-}
-
-.width-5-rem {
-    width: 5rem;
-}
-
-.width-50-percent {
-    width: 50%;
 }
 
 .d-flex {
@@ -102,45 +328,22 @@ li::marker {
     gap: 1rem;
 }
 
-.li-div-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.justify-content-center {
-    justify-content: center;
-}
-
-.justify-content-right {
-    justify-content: right;
-}
-
-.justify-content-left {
-    justify-content: left;
-}
-
-.white-text {
-    color: white;
-}
-
-.position-absolute {
-    position: absolute;
-}
-
-
-.img-smoothie {
-    padding-left: 54rem;
-    margin-top: -2rem;
-}
-
 header {
     top: 0;
     position: sticky;
+    z-index: 100;                    /* stay above photos/slider while they scroll under it */
     display: flex;
     background-color: #111111;
     justify-content: space-between;
     margin: 1rem 2rem 1rem 2rem;
+}
+
+/* "|" between the menu items (ABOUT | EVENTS | JOIN US | CONTACT): its own element,
+   so it is not part of any link's click area */
+header nav { align-items: center; }
+header nav .sep {
+    color: rgba(0, 255, 0, 0.45);
+    user-select: none;
 }
 
 canvas {
@@ -150,19 +353,101 @@ canvas {
     left:0;
 }
 
-
-
-.scrolling-wrapper {
-    overflow-x: scroll;
-    overflow-y: hidden;
-    white-space: nowrap;
-
-    .card {
-        display: inline-block;
-    }
-}
-
 /*responsive styles*/
 @media screen and (max-width: 80rem) {
     .container-body { margin: 0 2rem 0 2rem }
 }
+
+/* phones and small tablets: stack image + text rows vertically */
+@media screen and (max-width: 48rem) {
+    .container-body { margin: 0 1rem 0 1rem }
+    header {
+        margin: 0.5rem 0.4rem;
+        padding: 0.25rem 0.4rem;
+        align-items: center;
+        gap: 0.75rem;                     /* keep BORDEL and the menu apart */
+        flex-wrap: wrap;                  /* safety net: wrap instead of overflowing (e.g. big system fonts) */
+        font-size: clamp(12px, 3.5vw, 22px);
+    }
+    header nav.flex-gap-1 {                   /* beat the 1rem .flex-gap-1 utility */
+        gap: 0.35rem;
+        flex-wrap: wrap;                      /* safety net: the menu itself may wrap too */
+        justify-content: center;
+    }
+    header a { white-space: nowrap; }      /* never break "JOIN US" onto two lines */
+    h1 { font-size: 48px; padding-top: 4rem; }
+    h2 { font-size: 22px; }
+    .padding-top-8 { padding-top: 4rem; }
+    /* hero buttons: stacked, same width, centred */
+    a.button,
+    a.button:link,
+    a.button:visited {
+        display: block;
+        box-sizing: border-box;
+        width: min(100%, 20rem);
+        margin: 0.5rem auto;
+    }
+
+    /* space for everyone: stack photo above text */
+    .features { gap: 2.5rem; }
+    .feature,
+    .feature-reverse { grid-template-columns: 1fr; gap: 0; }
+    .feature-reverse .feature-media { order: 0; }
+    .feature-text { border-top: none; }   /* card sits directly under its photo */
+    .callout { margin-top: 2.5rem; padding: 1.25rem; }
+
+    /* swipe instead of arrows on phones; give the photo full width */
+    .slide { padding: 0; }
+    .slider-arrow { display: none; }
+}
+
+/* narrow phones only: BORDEL on the first line, the menu centred on the second,
+   so the items keep a readable size together with the "|" separators */
+@media screen and (max-width: 30rem) {
+    header {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 0.15rem;
+        font-size: clamp(12.5px, 4.2vw, 18px);
+    }
+    header nav.flex-gap-1 {
+        width: 100%;                  /* menu always on its own second line */
+        justify-content: center;
+        gap: 0.45rem;
+    }
+}
+
+/* CONTACT menu link jumps to the contact paragraph; leave room so the
+   "Join us" heading right above it stays visible under the sticky menu */
+#contact { scroll-margin-top: calc(var(--header-h, 3rem) + 5rem); }
+
+/* "Follow us on Bluesky" link in the Join us section */
+.follow {                    /* text, then one link per line, centred */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+}
+.follow-link,
+.follow-link:link,
+.follow-link:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.35em 0.9em;
+    border: 1px solid #0f0;
+    border-radius: 999px;
+    color: #0f0;
+    text-decoration: none;
+    text-shadow: none;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.25);
+    transition: box-shadow 0.2s, background-color 0.2s;
+    white-space: nowrap;
+}
+.follow-link:hover,
+.follow-link:focus-visible {
+    background-color: rgba(0, 255, 0, 0.12);
+    box-shadow: 0 0 18px rgba(0, 255, 0, 0.55);
+}
+.follow-icon { width: 1.1em; height: 1.1em; fill: currentColor; }

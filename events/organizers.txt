@@ -1,0 +1,8 @@
+# GitHub accounts that can publish events directly through the "New event" issue form.
+# One login per line; text after "#" is ignored. Everyone else needs the `approved` label.
+#
+# Changes to this file need a review from the code owners (.github/CODEOWNERS).
+# If someone renames or deletes their GitHub account, remove their line: GitHub can give
+# a freed-up login to someone else.
+
+Ver0N1ke
