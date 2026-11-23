@@ -29,6 +29,8 @@ body:
         3. Paste the **whole** content of `event.txt.asc` below (from `-----BEGIN PGP SIGNED MESSAGE-----` to `-----END PGP SIGNATURE-----`).
 
         A bot checks the signature against the keys in [`events/keys/`](../tree/master/events/keys). If it is valid, the event goes live within a few minutes and this issue is closed.
+
+        **No key in `events/keys/` yet?** Add yours first: see [how to add your key](../blob/master/events/keys/README.md).
   - type: textarea
     id: signed-event
     attributes:

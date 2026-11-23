@@ -1,0 +1,8 @@
+# Changes to these paths need a review from the owners listed here
+# (works once "Require review from Code Owners" is on in the branch protection for master).
+
+# Every key here can publish events to the website: check the fingerprint before approving.
+/events/keys/*.asc     @Ver0N1ke
+
+# The bot that checks signatures, its workflows, and this file itself.
+/.github/              @Ver0N1ke
