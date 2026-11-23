@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Rebuild keys.js
-        run: python3 .github/scripts/add_event.py --build-keys
+        run: python3 .github/scripts/build_keys.py
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"

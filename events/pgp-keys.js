@@ -1,6 +1,6 @@
 /* pgp-keys.js — fills the PGP KEYS section with the organizer keys from keys/keys.js.
  * Markup: <div id="org-keys" data-base="keys/" data-arrow="►"></div>
- * keys/keys.js is generated from events/keys/*.asc by .github/scripts/add_event.py --build-keys. */
+ * keys/keys.js is generated from events/keys/*.asc by .github/scripts/build_keys.py. */
 (function () {
   'use strict';
   const box = document.getElementById('org-keys');

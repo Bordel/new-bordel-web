@@ -1,6 +1,6 @@
 /*
  * Your events. Edit this list — nothing else needs to change.
- * (Events added through the signed GitHub issue form go to signed-events.js instead.)
+ * (Events added through the GitHub issue form go to issue-events.js instead.)
  *
  *   id          unique, no spaces
  *   title       event name

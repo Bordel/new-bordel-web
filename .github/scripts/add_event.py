@@ -1,48 +1,47 @@
 #!/usr/bin/env python3
-"""Verify a PGP clearsigned event from a GitHub issue and add it to the calendar.
+"""Add an event from a "New event" GitHub issue to the calendar.
 
-Input (env):  ISSUE_BODY, ISSUE_NUMBER
-Output:       events/signed-events.json + .js and events/used-signatures.txt (on success),
-              comment.md (always), and result/commit_msg in $GITHUB_OUTPUT.
+Who can publish:
+  * Organizers: GitHub logins listed in events/organizers.txt. Their issues are published
+    right away (only when the organizer opened or edited the issue themselves).
+  * Everyone else: the event is checked and waits until someone with write access to the
+    repository adds the `approved` label. Editing the issue after that removes the label,
+    so changed text always needs a new approval.
 
-`add_event.py --build-keys` instead regenerates events/keys/keys.js, the list of organizer
-keys that the PGP KEYS section of the events pages shows.
+Input (env):  ISSUE_BODY, ISSUE_NUMBER, ACTION (opened|edited|labeled), AUTHOR (issue author),
+              SENDER (who triggered the event), LABEL (for `labeled`),
+              SENDER_PERMISSION (admin|write|read|none, the sender's repo permission),
+              HAS_APPROVED_LABEL (true|false)
+Output:       events/issue-events.json + .js (on success), comment.md (when there is something
+              to say), and result / commit_msg / remove_label in $GITHUB_OUTPUT.
 
 Security notes:
-  * Only keys in events/keys/*.asc are trusted (imported into a fresh, temporary keyring).
-  * Event fields are read ONLY from the signed text gpg returns, never from the raw
-    issue body, so lines added outside the signature are ignored.
-  * Exactly one good signature is required; bad, expired or revoked ones are rejected.
-  * Each signature can be used once (events/used-signatures.txt) and must be recent,
-    so an old signed block copied from a closed issue can't re-publish a deleted event.
+  * Event fields come only from the issue form sections; unknown sections are rejected.
+  * The issue body comes through env, never inlined into a shell script.
 """
 import datetime
-import glob
-import hashlib
 import json
 import os
 import re
-import subprocess
 import sys
-import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-KEYS_DIR = os.path.join(ROOT, 'events', 'keys')
-DATA_JSON = os.path.join(ROOT, 'events', 'signed-events.json')
-DATA_JS = os.path.join(ROOT, 'events', 'signed-events.js')
+DATA_JSON = os.path.join(ROOT, 'events', 'issue-events.json')
+DATA_JS = os.path.join(ROOT, 'events', 'issue-events.js')
 HAND_EDITED = os.path.join(ROOT, 'events', 'events.js')
-USED_SIGS = os.path.join(ROOT, 'events', 'used-signatures.txt')
-KEYS_JS = os.path.join(KEYS_DIR, 'keys.js')
+ORGANIZERS = os.path.join(ROOT, 'events', 'organizers.txt')
 COMMENT = os.path.join(ROOT, 'comment.md')
 
+APPROVE_LABEL = 'approved'
 TYPES = {'workshop', 'talk', 'ctf', 'meetup', 'party', 'event'}
-FIELDS = {'title', 'start', 'duration', 'type', 'location', 'bring', 'description'}
-MAX_SIG_AGE_DAYS = 30
+# Issue form headings (lower case) → field. The field name itself is accepted too.
+SECTIONS = {'title': 'title', 'start': 'start', 'duration (minutes)': 'duration', 'duration': 'duration',
+            'type': 'type', 'location': 'location', 'bring': 'bring', 'description': 'description'}
+NO_RESPONSE = '_No response_'
 MAX_DURATION_MIN = 14 * 24 * 60     # multi-day events (e.g. a 4-day congress) are fine, up to two weeks
 START_RE = re.compile(r'^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$')
+LOGIN_RE = re.compile(r'^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$')
 MAX_LEN = {'title': 100, 'location': 120, 'bring': 200, 'description': 1000}
-BAD_STATUS = {'BADSIG', 'ERRSIG', 'EXPSIG', 'EXPKEYSIG', 'REVKEYSIG', 'NO_PUBKEY'}
-BLOCK_RE = re.compile(r'-----BEGIN PGP SIGNED MESSAGE-----.*?-----END PGP SIGNATURE-----', re.S)
 
 
 class Reject(Exception):
@@ -58,87 +57,54 @@ def output(**kv):
                 f.write(f'{k}={v}\n')
 
 
-def gpg(home, *args, data=None):
-    return subprocess.run(['gpg', '--homedir', home, '--batch', '--no-tty', *args],
-                          input=data, capture_output=True)
+def comment(text):
+    with open(COMMENT, 'w', encoding='utf-8') as f:
+        f.write(text.rstrip('\n') + '\n')
 
 
-def key_files(home):
-    """Yield (path, handle, [primary fingerprints]) for every events/keys/*.asc file."""
-    for path in sorted(glob.glob(os.path.join(KEYS_DIR, '*.asc'))):
-        handle = os.path.splitext(os.path.basename(path))[0]
-        shown = gpg(home, '--with-colons', '--show-keys', path)
-        lines = shown.stdout.decode('utf-8', 'replace').splitlines()
-        fprs = [lines[i + 1].split(':')[9] for i, line in enumerate(lines)
-                if line.startswith('pub:') and i + 1 < len(lines) and lines[i + 1].startswith('fpr:')]
-        yield path, handle, fprs
+def load_organizers():
+    """Return the lower-cased GitHub logins from events/organizers.txt."""
+    if not os.path.exists(ORGANIZERS):
+        return set()
+    logins = set()
+    with open(ORGANIZERS, encoding='utf-8') as f:
+        for line in f:
+            name = line.split('#', 1)[0].strip().lstrip('@')
+            if LOGIN_RE.match(name):
+                logins.add(name.lower())
+    return logins
 
 
-def trusted_keys(home):
-    """Import every key file; return {primary fingerprint: handle (file name)}."""
-    keys = {}
-    for path, handle, fprs in key_files(home):
-        for fpr in fprs:
-            keys[fpr] = handle
-        gpg(home, '--import', path)
-    if not keys:
-        raise Reject('No trusted keys found in `events/keys/` yet, so no event can be accepted.')
-    return keys
+def read_form(body):
+    """Turn the rendered issue form ("### Heading" + value) into {field: value}."""
+    ev, field, lines = {}, None, []
 
+    def flush():
+        if field is None:
+            if any(l.strip() for l in lines):
+                raise Reject('Please use the "New event" issue form (text before the first field found).')
+            return
+        value = ' '.join(l.strip() for l in lines if l.strip())   # multi-line description → one line
+        if value and value != NO_RESPONSE:
+            ev[field] = value
 
-def verify(home, block, keys):
-    """Return (signed plaintext, signer handle, signature id) or raise Reject."""
-    status_path = os.path.join(home, 'status')
-    res = gpg(home, '--status-file', status_path, '--decrypt', data=block.encode('utf-8'))
-    with open(status_path, encoding='utf-8', errors='replace') as f:
-        status = [l.split() for l in f if l.startswith('[GNUPG:] ')]
-    names = [s[1] for s in status if len(s) > 1]
-    if 'NO_PUBKEY' in names or 'ERRSIG' in names:
-        raise Reject('The signature was made with a key that is **not** in `events/keys/`.')
-    if BAD_STATUS & set(names):
-        raise Reject('The signature is **not valid** (bad, expired or revoked: `%s`). '
-                     'Was the text changed after signing?' % ', '.join(sorted(BAD_STATUS & set(names))))
-    validsig = [s for s in status if len(s) > 11 and s[1] == 'VALIDSIG']
-    if res.returncode != 0 or names.count('GOODSIG') != 1 or len(validsig) != 1:
-        raise Reject('Could not verify the signature. Paste the whole block from `gpg --clearsign`.')
-    primary = validsig[0][11]
-    if primary not in keys:
-        raise Reject('The signing key is not one of the trusted keys in `events/keys/`.')
-    try:
-        signed_at = datetime.datetime.fromtimestamp(int(validsig[0][4]), datetime.timezone.utc)
-    except ValueError:
-        signed_at = datetime.datetime.strptime(validsig[0][3], '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
-    age = datetime.datetime.now(datetime.timezone.utc) - signed_at
-    if age > datetime.timedelta(days=MAX_SIG_AGE_DAYS):
-        raise Reject(f'The signature is older than {MAX_SIG_AGE_DAYS} days. Please sign the event again.')
-    if age < -datetime.timedelta(days=1):
-        raise Reject('The signature is dated in the future. Check the clock on the computer that signed it.')
-    try:
-        text = res.stdout.decode('utf-8')
-    except UnicodeDecodeError:
-        raise Reject('The event text must be UTF-8. Save `event.txt` as UTF-8 and sign it again.')
-    sig_id = hashlib.sha256(f'{primary}\n{validsig[0][4]}\n{text}'.encode('utf-8')).hexdigest()
-    return text, keys[primary], sig_id
-
-
-def parse(text):
-    ev, last = {}, None
-    for raw in text.splitlines():
-        line = raw.strip()
-        if not line:
-            continue
-        if last == 'description':
-            ev[last] += ' ' + line           # description is the last field: everything after it belongs to it
-            continue
-        m = re.match(r'^([A-Za-z]+)\s*:\s*(.*)$', line)
-        if m and m.group(1).lower() in FIELDS:
-            last = m.group(1).lower()
-            if last in ev:
-                raise Reject(f'`{last}` appears twice.')
-            ev[last] = m.group(2).strip()
+    for raw in body.split('\n'):
+        m = re.match(r'^###\s+(.+?)\s*$', raw)
+        if m:
+            flush()
+            name = m.group(1).lower()
+            if name not in SECTIONS:
+                raise Reject(f'Unknown field `{m.group(1)[:60]}`. Please use the "New event" issue form.')
+            field, lines = SECTIONS[name], []
+            if field in ev:
+                raise Reject(f'`{field}` appears twice.')
         else:
-            raise Reject(f'Unknown line: `{line[:60]}`. Allowed keys: ' + ', '.join(sorted(FIELDS)))
+            lines.append(raw)
+    flush()
+    return ev
 
+
+def validate(ev):
     for req in ('title', 'start', 'type'):
         if not ev.get(req):
             raise Reject(f'Missing required field `{req}`.')
@@ -171,96 +137,101 @@ def parse(text):
     return out
 
 
-def load_signed():
+def load_events():
     if os.path.exists(DATA_JSON):
         with open(DATA_JSON, encoding='utf-8') as f:
             return json.load(f)
     return []
 
 
-def save_signed(events):
+def save_events(events):
     events.sort(key=lambda e: e['start'])
     with open(DATA_JSON, 'w', encoding='utf-8') as f:
         json.dump(events, f, ensure_ascii=False, indent=2)
         f.write('\n')
     js = json.dumps(events, ensure_ascii=False, indent=2).replace('</', '<\\/')
     with open(DATA_JS, 'w', encoding='utf-8') as f:
-        f.write('/* Generated by .github/scripts/add_event.py from signed-events.json. Do not edit by hand. */\n'
+        f.write('/* Generated by .github/scripts/add_event.py from issue-events.json. Do not edit by hand. */\n'
                 'window.EVENTS = (window.EVENTS || []).concat(' + js + ');\n')
 
 
-def load_used():
-    if not os.path.exists(USED_SIGS):
-        return set()
-    with open(USED_SIGS, encoding='utf-8') as f:
-        return {l.split()[0] for l in f if l.strip() and not l.startswith('#')}
+def check_duplicate(ev, events):
+    with open(HAND_EDITED, encoding='utf-8') as f:
+        existing = set(re.findall(r"""\bid:\s*['"]([^'"]+)['"]""", f.read()))
+    existing |= {e['id'] for e in events}
+    if ev['id'] in existing:
+        raise Reject(f"An event with id `{ev['id']}` (same title and date) already exists.")
 
 
-def mark_used(sig_id, issue):
-    new = not os.path.exists(USED_SIGS)
-    with open(USED_SIGS, 'a', encoding='utf-8') as f:
-        if new:
-            f.write('# Signatures already used to add events (one per line). Generated by add_event.py; do not edit.\n')
-        f.write(f'{sig_id} #{issue}\n')
-
-
-def build_keys_js():
-    with tempfile.TemporaryDirectory() as home:
-        os.chmod(home, 0o700)
-        keys = [{'handle': handle, 'file': os.path.basename(path), 'fingerprints': fprs}
-                for path, handle, fprs in key_files(home) if fprs]
-    js = json.dumps(keys, ensure_ascii=False, indent=2).replace('</', '<\\/')
-    with open(KEYS_JS, 'w', encoding='utf-8') as f:
-        f.write('/* Generated by .github/scripts/add_event.py --build-keys from events/keys/*.asc. Do not edit by hand. */\n'
-                'window.ORGANIZER_KEYS = ' + js + ';\n')
-    print(f'{len(keys)} key(s) written to {KEYS_JS}')
+def summary(ev):
+    lines = [f"- **{ev['title']}**", f"- {ev['start']} · {ev['type']}"]
+    if ev.get('location'):
+        lines.append(f"- {ev['location']}")
+    return '\n'.join(lines)
 
 
 def main():
     body = os.environ.get('ISSUE_BODY', '').replace('\r\n', '\n')
     issue = os.environ.get('ISSUE_NUMBER', '?')
+    action = os.environ.get('ACTION', '')
+    author = os.environ.get('AUTHOR', '')
+    sender = os.environ.get('SENDER', '')
+    label = os.environ.get('LABEL', '')
+    permission = os.environ.get('SENDER_PERMISSION', 'none')
+    has_label = os.environ.get('HAS_APPROVED_LABEL') == 'true'
+
+    organizers = load_organizers()
+    is_organizer = author.lower() in organizers
+    approving = action == 'labeled' and label == APPROVE_LABEL
+    if action == 'labeled' and not approving:
+        output(result='ignored')                   # some other label: nothing to do
+        return
+    if approving and permission not in ('admin', 'write'):
+        comment(f'⚠️ The `{APPROVE_LABEL}` label was added by someone without write access to the repository, '
+                'so it was ignored.')
+        output(result='ignored', remove_label='true')
+        return
+    # Organizers publish directly, but only when they opened/edited the issue themselves.
+    trusted = approving or (action in ('opened', 'edited') and is_organizer and sender.lower() == author.lower())
+
     try:
-        blocks = BLOCK_RE.findall(body)
-        if len(blocks) != 1:
-            raise Reject('Paste exactly one signed block (from `-----BEGIN PGP SIGNED MESSAGE-----` '
-                         'to `-----END PGP SIGNATURE-----`).')
-        with tempfile.TemporaryDirectory() as home:
-            os.chmod(home, 0o700)
-            text, signer, sig_id = verify(home, blocks[0], trusted_keys(home))
-        if sig_id in load_used():
-            raise Reject('This signed block was already used once. To publish the event again, sign it again.')
-        ev = parse(text)
-        ev['signedBy'] = signer
+        ev = validate(read_form(body))
+        if not trusted:
+            events = load_events()
+            check_duplicate(ev, events)
+            if action == 'edited' and has_label:
+                comment(f'✏️ The event was **edited after it was approved**, so the `{APPROVE_LABEL}` label was removed. '
+                        f'A maintainer needs to check it and add `{APPROVE_LABEL}` again.\n\n' + summary(ev))
+                output(result='pending', remove_label='true')
+            else:
+                comment(f'👀 **Looks good, waiting for approval.** Someone with write access to the repository '
+                        f'will check it and add the `{APPROVE_LABEL}` label; then it goes live.\n\n' + summary(ev))
+                output(result='pending')
+            return
 
-        events = load_signed()
-        with open(HAND_EDITED, encoding='utf-8') as f:
-            existing = set(re.findall(r"""\bid:\s*['"]([^'"]+)['"]""", f.read()))
-        existing |= {e['id'] for e in events}
-        if ev['id'] in existing:
-            raise Reject(f"An event with id `{ev['id']}` (same title and date) already exists.")
-
+        ev['addedBy'] = author
+        if approving:
+            ev['approvedBy'] = sender
+        events = load_events()
+        check_duplicate(ev, events)
         events.append(ev)
-        save_signed(events)
-        mark_used(sig_id, issue)
-        lines = [f"✅ **Added** to the calendar, signed by **{signer}**. It goes live within a few minutes.", '',
-                 f"- **{ev['title']}**", f"- {ev['start']} · {ev['type']}"]
-        if ev.get('location'):
-            lines.append(f"- {ev['location']}")
-        with open(COMMENT, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(lines) + '\n')
-        output(result='added', commit_msg=f"Add event: {ev['title']} ({ev['start']}), signed by {signer}, #{issue}")
+        save_events(events)
+        who = f"approved by **{sender}**" if 'approvedBy' in ev else f"added by organizer **{author}**"
+        comment(f"✅ **Added** to the calendar, {who}. It goes live within a few minutes.\n\n" + summary(ev))
+        by = f"by {author}" + (f", approved by {sender}" if 'approvedBy' in ev else '')
+        output(result='added', commit_msg=f"Add event: {ev['title']} ({ev['start']}), {by}, #{issue}")
     except Reject as e:
-        with open(COMMENT, 'w', encoding='utf-8') as f:
-            f.write(f'❌ **Event not added.** {e}\n\nFix it and edit this issue (or open a new one) to try again.\n')
-        output(result='rejected')
+        comment(f'❌ **Event not added.** {e}\n\nFix it by editing this issue (or open a new one).'
+                + (f' A maintainer then needs to add the `{APPROVE_LABEL}` label again.' if approving or has_label else ''))
+        # A rejected approval drops the label, so adding it again after the fix re-runs the bot.
+        output(result='rejected', remove_label='true' if approving or has_label else 'false')
         print('Rejected:', e, file=sys.stderr)
-    except Exception as e:                        # anything unexpected: still answer the issue
-        with open(COMMENT, 'w', encoding='utf-8') as f:
-            f.write('⚠️ **Event not added: the bot hit an internal error.** Your submission may be fine; '
-                    'a maintainer needs to check the workflow log.\n')
+    except Exception:                              # anything unexpected: still answer the issue
+        comment('⚠️ **Event not added: the bot hit an internal error.** Your submission may be fine; '
+                'a maintainer needs to check the workflow log.')
         output(result='error')
         raise
 
 
 if __name__ == '__main__':
-    build_keys_js() if sys.argv[1:] == ['--build-keys'] else main()
+    main()

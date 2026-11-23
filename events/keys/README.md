@@ -1,7 +1,8 @@
 # Organizer keys
 
-Every PGP key in this folder can publish events to the Bordel calendar
-(see the "New event (PGP-signed)" issue form). Only `*.asc` files here are trusted.
+Public PGP keys of Bordel organizers, shown in the PGP KEYS section of the events pages so people
+can verify announcements. Keys are **not** needed to publish events: that is done through the
+"New event" issue form (see `events/organizers.txt` and the main README).
 
 ## Add your key
 
@@ -37,8 +38,7 @@ Anyone can create a key with any name in it, so the name alone proves nothing.
 
 ## Remove a key
 
-Delete the person's `.asc` file. Signed events from that key are rejected from then on;
-events already published stay on the calendar.
+Delete the person's `.asc` file. The key list on the events page is updated automatically.
 
 ## Key expires or you get a new key
 
