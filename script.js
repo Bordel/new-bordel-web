@@ -51,10 +51,17 @@ Point.prototype.draw = function(ctx){
 }
 
 function resize() {
-    cw = window.innerWidth;
-    ch = window.innerHeight;
+    const w = window.innerWidth,
+        h = window.innerHeight;
+    // On phones the address bar hides/shows while scrolling, which fires 'resize' with a
+    // slightly different height. Re-setting canvas.width/height wipes the canvas (the rain
+    // flickers and restarts), so only resize when the width changes or the screen grows.
+    if (w === cw && h <= ch) return;
+    ch = w === cw ? Math.max(h, ch) : h;
+    cw = w;
     canvas.width = canvas2.width = cw;
     canvas.height = canvas2.height = ch;
+    canvas.style.height = canvas2.style.height = ch + 'px';   // never stretch the drawing
 
     // add or remove columns so they cover the full width
     const columns = Math.ceil(cw / fontSize);
